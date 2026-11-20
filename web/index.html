@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Đảo Đèn Lồng</title>
+<style>
+  :root { --warm: #ffb347; --ink: #2a0f3d; --text: #fff3dd; }
+  html, body { margin: 0; height: 100%; background: #0d0817; color: var(--text); font-family: system-ui, "Segoe UI", sans-serif; overflow: hidden; }
+  canvas { display: block; }
+  #hud { position: fixed; top: 12px; left: 12px; display: grid; gap: 4px; font-size: 15px; text-shadow: 0 1px 3px #000; pointer-events: none; }
+  #hud b { color: var(--warm); }
+  #hint { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); font-size: 16px; color: var(--warm); text-shadow: 0 1px 3px #000; pointer-events: none; }
+  .overlay { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(13, 8, 23, .78); }
+  .card { max-width: 520px; padding: 28px 32px; border-radius: 14px; background: rgba(40, 24, 60, .92); border: 1px solid #ffb34755; box-shadow: 0 0 40px #ffb34722; }
+  .card h1 { margin: 0 0 8px; color: var(--warm); }
+  .card table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+  .card td { padding: 3px 0; } .card td:last-child { text-align: right; color: var(--warm); }
+  kbd { background: #ffffff1a; border: 1px solid #ffffff33; border-radius: 4px; padding: 0 5px; }
+  .hidden { display: none; }
+</style>
+<script type="importmap">{ "imports": { "three": "/node_modules/three/build/three.module.js" } }</script>
+</head>
+<body>
+<div id="hud"></div>
+<div id="hint"></div>
+<div id="start" class="overlay"><div class="card">
+  <h1>Đảo Đèn Lồng</h1>
+  <p><i>Đêm 1 – Đảo Bến.</i> Sương đen đã nuốt hết ánh sáng của đảo. Mây, người giữ đèn nhỏ tuổi, phải gom đom đóm
+  để thắp lại năm Đèn Lồng Lớn trước bình minh, và tránh xa những Bóng Mực.</p>
+  <p><kbd>W A S D</kbd> di chuyển · <kbd>←</kbd><kbd>→</kbd> hoặc kéo chuột: xoay camera · <kbd>Space</kbd> nhảy<br>
+     <kbd>F</kbd> nạp đom đóm vào đèn · <kbd>Q</kbd> tỏa sáng xua Bóng Mực (tốn 1 đom đóm)</p>
+  <p>Nhấn <kbd>Enter</kbd> để bắt đầu.</p>
+</div></div>
+<div id="end" class="overlay hidden"><div class="card">
+  <h1 id="end-title"></h1><p id="end-reason"></p>
+  <table id="end-table"></table>
+  <p>Nhấn <kbd>R</kbd> hoặc <kbd>Enter</kbd> để chơi lại.</p>
+</div></div>
+<script type="module" src="/web/main.js"></script>
+</body>
+</html>
