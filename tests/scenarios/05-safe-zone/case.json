@@ -1,0 +1,6 @@
+{ "requirement": "R5c Bóng Mực sợ đèn (safe_radius quanh đèn đã thắp)", "seed": 1, "ticks": 1200, "snapshot_every": 60,
+  "expect": [
+    { "no_event": "player_hit" },
+    { "snapshot": 1200, "path": "shades.0.pos.0", "equals": 5.01 },
+    { "end": { "state": "playing", "ticks": 1200 } }
+  ] }

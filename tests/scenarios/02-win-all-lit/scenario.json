@@ -1,0 +1,3 @@
+{ "random_motes": false, "random_shades": false, "player": { "carried": 3 }, "time_left_s": 100,
+  "lanterns": [ { "id": "L1", "lit": true }, { "id": "L2", "lit": true }, { "id": "L3", "lit": true },
+                { "id": "L4", "lit": true }, { "id": "L5", "pos": [0, 0, 2] } ] }

@@ -1,0 +1,10 @@
+{ "requirement": "R3 nhặt đom đóm, R4 nạp và thắp đèn, R7 điểm", "seed": 1, "ticks": 120, "snapshot_every": 10,
+  "expect": [
+    { "event": "mote_picked", "tick": 10, "data": { "carried": 1 } },
+    { "event": "mote_picked", "tick": 30, "data": { "carried": 2 } },
+    { "event": "mote_picked", "tick": 50, "data": { "carried": 3 } },
+    { "event": "deposit", "tick": 91, "data": { "lantern_id": "L1", "amount": 3, "deposited": 3 } },
+    { "event": "lantern_lit", "tick": 91, "data": { "lantern_id": "L1" } },
+    { "snapshot": 100, "path": "lanterns.0.lit", "equals": true },
+    { "end": { "state": "playing", "score": 130, "ticks": 120 } }
+  ] }

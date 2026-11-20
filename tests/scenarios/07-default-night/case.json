@@ -1,0 +1,9 @@
+{ "requirement": "R1 màn Đêm 1 mặc định: 5 đèn, đom đóm rải rác, Bóng Mực xuất hiện", "seed": 42, "ticks": 600, "snapshot_every": 100,
+  "expect": [
+    { "snapshot": 0, "path": "motes_active", "equals": 30 },
+    { "snapshot": 0, "path": "lanterns.length", "equals": 5 },
+    { "snapshot": 0, "path": "time_left_s", "equals": 300 },
+    { "snapshot": 0, "path": "player.flames", "equals": 3 },
+    { "event": "shade_spawned", "tick": 300, "data": { "id": "S1" } },
+    { "end": { "state": "playing", "ticks": 600 } }
+  ] }

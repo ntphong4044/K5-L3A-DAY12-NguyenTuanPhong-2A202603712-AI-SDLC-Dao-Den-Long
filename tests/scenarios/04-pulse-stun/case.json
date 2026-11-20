@@ -1,0 +1,10 @@
+{ "requirement": "R5b tỏa sáng xua Bóng Mực, tốn ánh sáng", "seed": 1, "ticks": 240, "snapshot_every": 10,
+  "expect": [
+    { "event": "pulse", "tick": 1, "data": { "stunned_ids": ["S1"] } },
+    { "snapshot": 10, "path": "shades.0.state", "equals": "stunned" },
+    { "snapshot": 10, "path": "shades.0.pos.0", "equals": 9 },
+    { "snapshot": 10, "path": "player.carried", "equals": 0 },
+    { "snapshot": 190, "path": "shades.0.state", "equals": "chase" },
+    { "no_event": "player_hit" },
+    { "end": { "state": "playing", "score": 20 } }
+  ] }

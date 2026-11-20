@@ -1,0 +1,6 @@
+{ "requirement": "R6 thắng khi thắp hết đèn, R7 điểm thưởng", "seed": 1, "ticks": 300, "snapshot_every": 10,
+  "expect": [
+    { "event": "lantern_lit", "tick": 1, "data": { "lantern_id": "L5" } },
+    { "event": "game_over", "tick": 1, "data": { "result": "won", "reason": "all_lit" } },
+    { "end": { "state": "won", "ticks": 1, "score": 349 } }
+  ] }

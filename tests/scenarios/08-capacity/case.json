@@ -1,0 +1,6 @@
+{ "requirement": "R3b giới hạn carry_capacity", "seed": 1, "ticks": 30, "snapshot_every": 10,
+  "expect": [
+    { "no_event": "mote_picked" },
+    { "snapshot": 30, "path": "motes_active", "equals": 2 },
+    { "snapshot": 30, "path": "player.carried", "equals": 5 }
+  ] }

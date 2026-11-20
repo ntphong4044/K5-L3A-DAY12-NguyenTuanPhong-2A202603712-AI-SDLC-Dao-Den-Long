@@ -1,0 +1,6 @@
+{ "requirement": "R6 thua khi hết đêm (dawn)", "seed": 1, "ticks": 500, "snapshot_every": 30,
+  "expect": [
+    { "snapshot": 60, "path": "time_left_s", "equals": 1 },
+    { "event": "game_over", "tick": 120, "data": { "result": "lost", "reason": "dawn" } },
+    { "end": { "state": "lost", "ticks": 120, "score": 0 } }
+  ] }
