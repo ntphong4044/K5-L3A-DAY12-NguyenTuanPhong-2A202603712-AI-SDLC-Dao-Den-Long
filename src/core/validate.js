@@ -1,4 +1,4 @@
-// Kiểm tra định dạng file inputs / scenario theo Test Contract v1.0 (mục C, D).
+// Kiểm tra định dạng file inputs / scenario theo Test Contract v1.2 (mục C, D + thay đổi Ticket-03).
 // Sai định dạng -> ném FormatError (headless thoát mã 2).
 import { SHADE_STATES, DRIFTER_STATES } from './sim.js';
 
@@ -42,7 +42,7 @@ export function validateScenario(doc, lanternCount = 5) {
     if ('pos' in p && !isVec3(p.pos)) fail('scenario.player.pos: phải là [x, y, z]');
     if ('carried' in p && (!isInt(p.carried) || p.carried < 0)) fail('scenario.player.carried: số nguyên >= 0');
     if ('flames' in p && (!isInt(p.flames) || p.flames < 0)) fail('scenario.player.flames: số nguyên >= 0');
-    for (const k of ['invuln_ticks', 'dash_cd_ticks', 'pulse_cd_ticks', 'charm_ticks']) {
+    for (const k of ['invuln_ticks', 'dash_cd_ticks', 'pulse_cd_ticks', 'charm_ticks', 'successful_lights']) {
       if (k in p && (!isInt(p[k]) || p[k] < 0)) fail(`scenario.player.${k}: số nguyên >= 0`);
     }
   }
@@ -65,6 +65,9 @@ export function validateScenario(doc, lanternCount = 5) {
       }
       if ('state' in sh && !SHADE_STATES.includes(sh.state)) fail(`scenario.shades[${i}].state: một trong ${SHADE_STATES.join(', ')}`);
       if ('state_ticks_left' in sh && (!isInt(sh.state_ticks_left) || sh.state_ticks_left < 0)) fail(`scenario.shades[${i}].state_ticks_left: số nguyên >= 0`);
+      if ('target_lantern_id' in sh && sh.target_lantern_id !== null && (typeof sh.target_lantern_id !== 'string' || !sh.target_lantern_id)) {
+        fail(`scenario.shades[${i}].target_lantern_id: chuỗi khác rỗng hoặc null`);
+      }
     });
   }
   if ('drifters' in doc) {
@@ -91,6 +94,10 @@ export function validateScenario(doc, lanternCount = 5) {
       if ('pos' in l && !isVec3(l.pos)) fail(`scenario.lanterns[${i}].pos: phải là [x, y, z]`);
       if ('lit' in l && typeof l.lit !== 'boolean') fail(`scenario.lanterns[${i}].lit: phải là boolean`);
       if ('deposited' in l && (!isInt(l.deposited) || l.deposited < 0)) fail(`scenario.lanterns[${i}].deposited: số nguyên >= 0`);
+      // Ticket-03: đèn có fuel (dầu thập phân 0..100), ever_lit, relit_count
+      if ('fuel' in l && (!isNum(l.fuel) || l.fuel < 0 || l.fuel > 100)) fail(`scenario.lanterns[${i}].fuel: số 0..100`);
+      if ('ever_lit' in l && typeof l.ever_lit !== 'boolean') fail(`scenario.lanterns[${i}].ever_lit: phải là boolean`);
+      if ('relit_count' in l && (!isInt(l.relit_count) || l.relit_count < 0)) fail(`scenario.lanterns[${i}].relit_count: số nguyên >= 0`);
     });
   }
   if ('time_left_s' in doc && (!isNum(doc.time_left_s) || doc.time_left_s < 0)) {

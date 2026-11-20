@@ -73,14 +73,18 @@ export function createBot() {
   let waypoint = null, replan = 0, stuck = 0, last = null, side = 0, flip = 1;
   return function decide(g) {
     const T = g.T, p = g.player;
-    const unlit = g.lanterns.filter((l) => !l.lit);
+    // Ticket-03: đèn "cần" = đèn tắt, hoặc đèn sáng còn dưới 60 dầu (châm trước khi nó yếu/tắt)
+    const fuel = (l) => (l.fuel100 ?? 0) / 60;
+    const unlit = g.lanterns.filter((l) => !l.lit || fuel(l) < 60);
     if (!unlit.length || p.respawn > 0 || g.state !== 'playing') return { move: [0, 0], cam_yaw_deg: 0 };
     const awake = g.shades.filter((s) => s.state === 'chase' || s.state === 'wander');
     const danger = (q) => awake.filter((s) => dXZ(s.pos, q) <= 9).length;
     const cost = (q) => dXZ(q, p.pos) + 25 * danger(q) + 6 * Math.abs(q[1] - p.pos[1]);
     const best = (arr) => arr.reduce((a, b) => (cost(b.pos) < cost(a.pos) ? b : a));
     const lantern = best(unlit);
-    const need = Math.min(T.carry_capacity, T.lantern_cost - lantern.deposited);
+    const cap = Math.min(T.capacity_max ?? T.carry_capacity, T.carry_capacity + 2 * (p.successfulLights ?? 0));
+    const need = Math.min(cap, lantern.lit ? Math.ceil((100 - fuel(lantern)) / (T.fuel_per_mote ?? 10))
+      : (lantern.everLit ? (T.relight_cost ?? 5) : T.lantern_cost) - lantern.deposited);
     const motes = g.motes;
     const goLantern = p.carried >= need || (!motes.length && p.carried > 0);
     const target = goLantern ? lantern : (motes.length ? best(motes) : lantern);
