@@ -2,14 +2,13 @@ name: ci
 on: [push, pull_request]
 jobs:
   test:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
+    # Một hệ điều hành: lab chấm trên Linux/Windows; macOS runner của GitHub hay kẹt hàng đợi nhiều giờ
+    # và mã này không dùng API riêng của macOS. Thêm lại vào matrix nếu cần thử trên macOS.
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: 20 }
+        with: { node-version: 22 }
       - run: npm ci
       - run: npm test
       - run: npm run proof

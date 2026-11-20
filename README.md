@@ -136,7 +136,7 @@ npm run proof -- --phase 3                                              # sinh d
 - Bằng chứng: [Phase 1](docs/proof/phase-1/README.md) · [Phase 2](docs/proof/phase-2/README.md) · [Phase 3](docs/proof/phase-3/README.md) · [Phase 4](docs/proof/phase-4/README.md) (bảng truy vết + ảnh + bench + soak)
 - Spec, tiêu chí nghiệm thu (AC), giả định và đánh giá: [phase-1.md](docs/notes/phase-1.md) · [phase-2.md](docs/notes/phase-2.md) · [phase-3.md](docs/notes/phase-3.md) · [phase-4.md](docs/notes/phase-4.md)
 - [Retro 4 phase](docs/notes/retro.md) · [Nhật ký AI & chi phí](docs/notes/ai-log.md) · [CHANGELOG](CHANGELOG.md) · [CREDITS](CREDITS.md)
-- CI: GitHub Actions chạy `npm test` + `npm run proof` trên Ubuntu mỗi lần push.
+- CI: GitHub Actions (Ubuntu) chạy `npm test`, `npm run proof`, `npm run soak`, bench dự phòng CPU và `npm run release` mỗi lần push.
 
 ## Cấu trúc
 
