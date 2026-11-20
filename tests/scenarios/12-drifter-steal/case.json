@@ -1,0 +1,42 @@
+{
+ "requirement": "Gió Lạc: idle->chase khi mang >=5 & <=15 m, 7 m/s, chạm 1.2 m cướp min(3,mang), flee 240 tick rồi removed",
+ "night": 2,
+ "seed": 1,
+ "ticks": 300,
+ "snapshot_every": 10,
+ "note": "5-33*7/60=1.15<=1.2 -> tick 33; flee hết ở tick 273",
+ "expect": [
+  {
+   "snapshot": 10,
+   "path": "drifters.0.state",
+   "equals": "chase"
+  },
+  {
+   "event": "drifter_steal",
+   "tick": 33,
+   "data": {
+    "drifter_id": "D1",
+    "amount": 3,
+    "carried": 3
+   }
+  },
+  {
+   "snapshot": 270,
+   "path": "drifters.0.state",
+   "equals": "flee"
+  },
+  {
+   "snapshot": 280,
+   "path": "drifters.0.state",
+   "equals": "removed"
+  },
+  {
+   "snapshot": 280,
+   "path": "drifters.0.stolen",
+   "equals": 3
+  },
+  {
+   "no_event": "player_hit"
+  }
+ ]
+}

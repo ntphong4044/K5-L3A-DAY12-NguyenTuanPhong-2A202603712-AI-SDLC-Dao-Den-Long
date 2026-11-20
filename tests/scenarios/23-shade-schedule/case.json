@@ -1,0 +1,44 @@
+{
+ "requirement": "Bóng Mực: 2 con tick 300, rồi mỗi 480 tick, tối đa 6; spawning -> wander",
+ "night": 1,
+ "seed": 1,
+ "ticks": 3000,
+ "snapshot_every": 10,
+ "expect": [
+  {
+   "event": "shade_spawned",
+   "tick": 300,
+   "data": {
+    "id": "S2"
+   }
+  },
+  {
+   "event": "shade_spawned",
+   "tick": 1260,
+   "data": {
+    "id": "S4"
+   }
+  },
+  {
+   "event": "shade_spawned",
+   "tick": 2220,
+   "data": {
+    "id": "S6"
+   }
+  },
+  {
+   "count": "shade_spawned",
+   "equals": 6
+  },
+  {
+   "snapshot": 310,
+   "path": "shades.0.state",
+   "equals": "spawning"
+  },
+  {
+   "snapshot": 360,
+   "path": "shades.0.state",
+   "equals": "wander"
+  }
+ ]
+}

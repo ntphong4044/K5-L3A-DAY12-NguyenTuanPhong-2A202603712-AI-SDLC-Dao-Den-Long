@@ -1,0 +1,21 @@
+{
+ "requirement": "Cầu tre không lan can: bước ra khỏi cầu thì rơi",
+ "night": 2,
+ "seed": 1,
+ "ticks": 200,
+ "snapshot_every": 10,
+ "note": "cầu z trong [-2,2]: đi +Z ra khỏi cầu ở tick 21",
+ "expect": [
+  {
+   "event": "player_hit",
+   "data": {
+    "by": "fall"
+   }
+  },
+  {
+   "snapshot": 10,
+   "path": "player.grounded",
+   "equals": true
+  }
+ ]
+}

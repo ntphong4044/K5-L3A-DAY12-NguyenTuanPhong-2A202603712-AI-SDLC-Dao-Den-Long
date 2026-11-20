@@ -1,0 +1,51 @@
+{
+ "requirement": "Bùa Gió: nhặt như đom đóm, 600 tick, chạy 7.2 m/s, lướt không hồi chiêu, hồi lại sau 2700 tick",
+ "night": 2,
+ "seed": 1,
+ "ticks": 100,
+ "snapshot_every": 10,
+ "note": "tick 1..10: 0.1 m -> 34.05 (nhặt); tick 11..30: 0.12 m -> 36.45; 2 lần lướt cách 20 tick, +2.8 mỗi lần",
+ "expect": [
+  {
+   "event": "charm_picked",
+   "tick": 10,
+   "data": {
+    "charm_id": "C1",
+    "charm_ticks": 600
+   }
+  },
+  {
+   "snapshot": 40,
+   "path": "player.pos.0",
+   "equals": 36.45
+  },
+  {
+   "snapshot": 40,
+   "path": "player.charm_s",
+   "equals": 9.5
+  },
+  {
+   "snapshot": 40,
+   "path": "charms.0.available",
+   "equals": false
+  },
+  {
+   "snapshot": 40,
+   "path": "charms.0.respawn_s",
+   "equals": 44.5
+  },
+  {
+   "event": "dash",
+   "tick": 41
+  },
+  {
+   "event": "dash",
+   "tick": 61
+  },
+  {
+   "snapshot": 90,
+   "path": "player.pos.0",
+   "equals": 42.05
+  }
+ ]
+}

@@ -1,0 +1,53 @@
+{
+ "requirement": "Tạm dừng: tick tăng, sim_tick/thời gian đứng yên, state paused",
+ "night": 1,
+ "seed": 1,
+ "ticks": 60,
+ "snapshot_every": 10,
+ "expect": [
+  {
+   "event": "paused",
+   "tick": 11
+  },
+  {
+   "event": "resumed",
+   "tick": 41
+  },
+  {
+   "snapshot": 20,
+   "path": "state",
+   "equals": "paused"
+  },
+  {
+   "snapshot": 20,
+   "path": "sim_tick",
+   "equals": 10
+  },
+  {
+   "snapshot": 20,
+   "path": "time_left_s",
+   "equals": 299.833
+  },
+  {
+   "snapshot": 20,
+   "path": "player.pos.2",
+   "equals": 1
+  },
+  {
+   "snapshot": 60,
+   "path": "sim_tick",
+   "equals": 30
+  },
+  {
+   "snapshot": 60,
+   "path": "player.pos.2",
+   "equals": 3
+  },
+  {
+   "end": {
+    "ticks": 60,
+    "state": "playing"
+   }
+  }
+ ]
+}

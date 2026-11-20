@@ -1,0 +1,28 @@
+{
+ "requirement": "Đêm 3: dốc 30° từ r=30 (Y=0) lên r=24 (Y=3) rồi lên tầng 1",
+ "night": 3,
+ "seed": 1,
+ "ticks": 120,
+ "snapshot_every": 10,
+ "note": "r 31 -> 25 sau 60 tick: h = 3*(30-25)/6 = 2.5",
+ "expect": [
+  {
+   "snapshot": 60,
+   "path": "player.pos.1",
+   "between": [
+    2.4,
+    2.6
+   ]
+  },
+  {
+   "snapshot": 120,
+   "path": "player.pos.1",
+   "equals": 3
+  },
+  {
+   "snapshot": 120,
+   "path": "player.grounded",
+   "equals": true
+  }
+ ]
+}

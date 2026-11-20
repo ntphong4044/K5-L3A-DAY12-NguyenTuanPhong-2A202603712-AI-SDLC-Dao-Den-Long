@@ -1,0 +1,59 @@
+{
+ "requirement": "Tỏa Sáng: 3 đom đóm, 3D <= 5 m từ chân+0.8, choáng 120 tick, đẩy 4 m trong 15 tick, +5",
+ "night": 1,
+ "seed": 1,
+ "ticks": 200,
+ "snapshot_every": 10,
+ "note": "d3((0,0.8,0),(4,1,0))=4.005. Đẩy 4/15 m/tick ở tick 1..15. Choáng tick 1..120.",
+ "changed_in_phase2": "pulse_cost 1->3, radius 6->5 (3D), stun 3s->120 tick, đẩy dần 15 tick, per_stun 20->5, cooldown 3 s",
+ "expect": [
+  {
+   "event": "pulse",
+   "tick": 1,
+   "data": {
+    "stunned_ids": [
+     "S1"
+    ]
+   }
+  },
+  {
+   "snapshot": 10,
+   "path": "shades.0.pos.0",
+   "equals": 6.667
+  },
+  {
+   "snapshot": 10,
+   "path": "player.carried",
+   "equals": 0
+  },
+  {
+   "snapshot": 20,
+   "path": "shades.0.pos.0",
+   "equals": 8
+  },
+  {
+   "snapshot": 120,
+   "path": "shades.0.state",
+   "equals": "stunned"
+  },
+  {
+   "snapshot": 130,
+   "path": "shades.0.state",
+   "equals": "chase"
+  },
+  {
+   "snapshot": 10,
+   "path": "player.pulse_cd_s",
+   "equals": 2.85
+  },
+  {
+   "no_event": "player_hit"
+  },
+  {
+   "end": {
+    "state": "playing",
+    "score": 5
+   }
+  }
+ ]
+}

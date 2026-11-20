@@ -1,0 +1,65 @@
+{
+ "requirement": "Đêm 1 chuẩn: đèn đúng tọa độ, 20 đom đóm, 2 Bóng Mực ở tick 300 rồi mỗi 480",
+ "night": 1,
+ "seed": 42,
+ "ticks": 900,
+ "snapshot_every": 60,
+ "changed_in_phase2": "bản đồ chuẩn, 20 đom đóm, lịch sinh mới",
+ "expect": [
+  {
+   "snapshot": 0,
+   "path": "motes_active",
+   "equals": 20
+  },
+  {
+   "snapshot": 0,
+   "path": "lanterns.1.pos",
+   "equals": [
+    23.8,
+    0,
+    7.7
+   ]
+  },
+  {
+   "snapshot": 0,
+   "path": "time_left_s",
+   "equals": 300
+  },
+  {
+   "snapshot": 0,
+   "path": "player.flames",
+   "equals": 3
+  },
+  {
+   "event": "shade_spawned",
+   "tick": 300,
+   "data": {
+    "id": "S1"
+   }
+  },
+  {
+   "event": "shade_spawned",
+   "tick": 300,
+   "data": {
+    "id": "S2"
+   }
+  },
+  {
+   "event": "shade_spawned",
+   "tick": 780,
+   "data": {
+    "id": "S3"
+   }
+  },
+  {
+   "snapshot": 240,
+   "path": "motes_active",
+   "equals": 21
+  },
+  {
+   "snapshot": 360,
+   "path": "shades.0.state",
+   "equals": "wander"
+  }
+ ]
+}

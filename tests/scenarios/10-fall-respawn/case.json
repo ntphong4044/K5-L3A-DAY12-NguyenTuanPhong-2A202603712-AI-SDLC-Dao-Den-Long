@@ -1,0 +1,43 @@
+{
+ "requirement": "Rơi khỏi đảo (Y<-10): -1 lửa, mất hết đom đóm, chờ 60 tick, hồi sinh tại xuất phát, bất tử 90",
+ "night": 1,
+ "seed": 1,
+ "ticks": 140,
+ "snapshot_every": 10,
+ "note": "x>40 từ tick 5; y_k=-k(k+1)/360 < -10 khi k=60 -> tick 64. Hồi sinh tick 124.",
+ "expect": [
+  {
+   "event": "player_hit",
+   "tick": 64,
+   "data": {
+    "by": "fall",
+    "flames": 2,
+    "dropped": 0,
+    "lost": 4
+   }
+  },
+  {
+   "count": "player_hit",
+   "equals": 1
+  },
+  {
+   "snapshot": 130,
+   "path": "player.pos",
+   "equals": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "snapshot": 130,
+   "path": "player.invuln",
+   "equals": true
+  },
+  {
+   "snapshot": 130,
+   "path": "player.carried",
+   "equals": 0
+  }
+ ]
+}

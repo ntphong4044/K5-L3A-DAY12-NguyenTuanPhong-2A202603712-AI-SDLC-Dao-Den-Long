@@ -1,0 +1,49 @@
+{
+ "requirement": "Tỏa Sáng trúng Gió Lạc đang flee có đồ -> thả lại thành đom đóm rơi, biến mất sau 120 tick",
+ "night": 2,
+ "seed": 1,
+ "ticks": 140,
+ "snapshot_every": 10,
+ "expect": [
+  {
+   "event": "drifter_drop",
+   "tick": 1,
+   "data": {
+    "drifter_id": "D1",
+    "amount": 3
+   }
+  },
+  {
+   "event": "pulse",
+   "tick": 1,
+   "data": {
+    "stunned_ids": []
+   }
+  },
+  {
+   "snapshot": 10,
+   "path": "motes_active",
+   "equals": 3
+  },
+  {
+   "snapshot": 10,
+   "path": "motes.0.kind",
+   "equals": "dropped"
+  },
+  {
+   "snapshot": 10,
+   "path": "motes.0.ttl_s",
+   "equals": 7.85
+  },
+  {
+   "snapshot": 120,
+   "path": "drifters.0.state",
+   "equals": "flee"
+  },
+  {
+   "snapshot": 130,
+   "path": "drifters.0.state",
+   "equals": "removed"
+  }
+ ]
+}

@@ -1,10 +1,67 @@
-{ "requirement": "R3 nhặt đom đóm, R4 nạp và thắp đèn, R7 điểm", "seed": 1, "ticks": 120, "snapshot_every": 10,
-  "expect": [
-    { "event": "mote_picked", "tick": 10, "data": { "carried": 1 } },
-    { "event": "mote_picked", "tick": 30, "data": { "carried": 2 } },
-    { "event": "mote_picked", "tick": 50, "data": { "carried": 3 } },
-    { "event": "deposit", "tick": 91, "data": { "lantern_id": "L1", "amount": 3, "deposited": 3 } },
-    { "event": "lantern_lit", "tick": 91, "data": { "lantern_id": "L1" } },
-    { "snapshot": 100, "path": "lanterns.0.lit", "equals": true },
-    { "end": { "state": "playing", "score": 130, "ticks": 120 } }
-  ] }
+{
+ "requirement": "R3 nhặt, R4 nạp & thắp, +10 mỗi đom đóm NẠP",
+ "night": 1,
+ "seed": 1,
+ "ticks": 120,
+ "snapshot_every": 10,
+ "note": "0.1 m/tick; đom đóm z=2 nhặt khi z>=1 (tick 10). Dừng z=9, cách đèn 1 m <= 2.",
+ "changed_in_phase2": "lantern_cost 3->10, carry 5->10; per_mote tính khi NẠP (10x10+100=200) thay vì khi nhặt",
+ "expect": [
+  {
+   "event": "night_start",
+   "tick": 1,
+   "data": {
+    "night": 1
+   }
+  },
+  {
+   "event": "mote_picked",
+   "tick": 10,
+   "data": {
+    "carried": 8
+   }
+  },
+  {
+   "event": "mote_picked",
+   "tick": 30,
+   "data": {
+    "carried": 9
+   }
+  },
+  {
+   "event": "mote_picked",
+   "tick": 50,
+   "data": {
+    "carried": 10
+   }
+  },
+  {
+   "event": "deposit",
+   "tick": 91,
+   "data": {
+    "lantern_id": "L1",
+    "amount": 10,
+    "deposited": 10
+   }
+  },
+  {
+   "event": "lantern_lit",
+   "tick": 91,
+   "data": {
+    "lantern_id": "L1"
+   }
+  },
+  {
+   "snapshot": 100,
+   "path": "lanterns.0.lit",
+   "equals": true
+  },
+  {
+   "end": {
+    "state": "playing",
+    "score": 200,
+    "ticks": 120
+   }
+  }
+ ]
+}

@@ -1,0 +1,6 @@
+{
+ "random_motes": false,
+ "player": {
+  "invuln_ticks": 100000
+ }
+}

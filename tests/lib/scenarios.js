@@ -20,7 +20,7 @@ export function listCases() {
 export function caseArgs(name, outFile) {
   const dir = path.join(SCEN_DIR, name);
   const c = JSON.parse(fs.readFileSync(path.join(dir, 'case.json'), 'utf8'));
-  const args = ['--seed', String(c.seed), '--night', '1'];
+  const args = ['--seed', String(c.seed), '--night', String(c.night ?? 1)];
   if (fs.existsSync(path.join(dir, 'scenario.json'))) args.push('--scenario', path.join(dir, 'scenario.json'));
   if (fs.existsSync(path.join(dir, 'inputs.json'))) args.push('--inputs', path.join(dir, 'inputs.json'));
   args.push('--ticks', String(c.ticks), '--out', outFile, '--snapshot-every', String(c.snapshot_every ?? 10));
@@ -44,6 +44,21 @@ export function check(lines, expect) {
     if (e.no_event) {
       const n = evs.filter((x) => x.name === e.no_event).length;
       return { ok: n === 0, desc: `không có event ${e.no_event}`, actual: `${n} lần` };
+    }
+    if (e.count) {
+      const n = evs.filter((x) => x.name === e.count).length;
+      return { ok: n === e.equals, desc: `số event ${e.count} == ${e.equals}`, actual: String(n) };
+    }
+    if (e.snapshot != null && e.between) {
+      const s = snaps.find((x) => x.tick === e.snapshot);
+      const v = s ? get(s, e.path) : undefined;
+      return { ok: typeof v === 'number' && v >= e.between[0] && v <= e.between[1], desc: `snapshot@${e.snapshot} ${e.path} trong [${e.between}]`, actual: JSON.stringify(v) };
+    }
+    if (e.snapshot != null && e.dist_xz) {
+      const s = snaps.find((x) => x.tick === e.snapshot);
+      const v = s ? get(s, e.dist_xz.path) : undefined;
+      const d = v ? Math.hypot(v[0] - e.dist_xz.from[0], v[2] - e.dist_xz.from[2]) : NaN;
+      return { ok: Math.abs(d - e.dist_xz.equals) <= (e.dist_xz.tol ?? 0.01), desc: `snapshot@${e.snapshot} khoảng cách XZ ${e.dist_xz.path} tới ${JSON.stringify(e.dist_xz.from)} ≈ ${e.dist_xz.equals}`, actual: d.toFixed(3) };
     }
     if (e.snapshot != null) {
       const s = snaps.find((x) => x.tick === e.snapshot);

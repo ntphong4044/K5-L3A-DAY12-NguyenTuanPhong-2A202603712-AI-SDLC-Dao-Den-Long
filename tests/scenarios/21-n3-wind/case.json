@@ -1,0 +1,37 @@
+{
+ "requirement": "Gió mạnh Đêm 3: mỗi 30 s, kéo dài 5 s, đẩy 2 m/s",
+ "night": 3,
+ "seed": 1,
+ "ticks": 2160,
+ "snapshot_every": 10,
+ "note": "300 tick x 2/60 m = 10 m",
+ "expect": [
+  {
+   "snapshot": 1800,
+   "path": "wind.active",
+   "equals": true
+  },
+  {
+   "snapshot": 2160,
+   "path": "wind.active",
+   "equals": false
+  },
+  {
+   "snapshot": 1790,
+   "path": "wind.active",
+   "equals": false
+  },
+  {
+   "snapshot": 2160,
+   "dist_xz": {
+    "path": "player.pos",
+    "from": [
+     0,
+     0,
+     -30
+    ],
+    "equals": 10
+   }
+  }
+ ]
+}

@@ -1,0 +1,36 @@
+{
+ "requirement": "Bục nhảy Đêm 2: bắn lên 14 m/s, 24 m/s về tâm đảo kia, đáp trong đảo B",
+ "night": 2,
+ "seed": 1,
+ "ticks": 150,
+ "snapshot_every": 10,
+ "note": "bay ~83 tick (1.4 s), x ~= 20 + 83*0.379 = 51.4",
+ "expect": [
+  {
+   "snapshot": 120,
+   "path": "player.grounded",
+   "equals": true
+  },
+  {
+   "snapshot": 120,
+   "path": "player.pos.1",
+   "equals": 0
+  },
+  {
+   "snapshot": 120,
+   "path": "player.pos.0",
+   "between": [
+    42,
+    98
+   ]
+  },
+  {
+   "snapshot": 40,
+   "path": "player.grounded",
+   "equals": false
+  },
+  {
+   "no_event": "player_hit"
+  }
+ ]
+}

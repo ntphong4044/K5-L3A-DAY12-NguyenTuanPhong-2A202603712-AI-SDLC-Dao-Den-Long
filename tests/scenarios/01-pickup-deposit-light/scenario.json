@@ -1,2 +1,36 @@
-{ "random_motes": false, "random_shades": false, "motes": [[0, 0, 2], [0, 0, 4], [0, 0, 6]],
-  "lanterns": [{ "id": "L1", "pos": [0, 0, 10] }] }
+{
+ "random_motes": false,
+ "random_shades": false,
+ "random_drifters": false,
+ "wind_enabled": false,
+ "player": {
+  "carried": 7
+ },
+ "motes": [
+  [
+   0,
+   0,
+   2
+  ],
+  [
+   0,
+   0,
+   4
+  ],
+  [
+   0,
+   0,
+   6
+  ]
+ ],
+ "lanterns": [
+  {
+   "id": "L1",
+   "pos": [
+    0,
+    0,
+    10
+   ]
+  }
+ ]
+}

@@ -1,0 +1,26 @@
+{
+ "requirement": "Đèn vừa thắp: Bóng Mực bên trong bị đẩy ra mép trong 30 tick, không gây sát thương",
+ "night": 1,
+ "seed": 1,
+ "ticks": 60,
+ "snapshot_every": 10,
+ "expect": [
+  {
+   "event": "lantern_lit",
+   "tick": 1
+  },
+  {
+   "no_event": "player_hit"
+  },
+  {
+   "snapshot": 30,
+   "path": "shades.0.pos.0",
+   "equals": 1.898
+  },
+  {
+   "snapshot": 30,
+   "path": "shades.0.pos.2",
+   "equals": 5.693
+  }
+ ]
+}

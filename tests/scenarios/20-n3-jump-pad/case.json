@@ -1,0 +1,28 @@
+{
+ "requirement": "Đêm 3: bục (0,3,13) bắn 12 m/s lên, 8 m/s về -Z, đáp tầng 2 (Y=6)",
+ "night": 3,
+ "seed": 1,
+ "ticks": 120,
+ "snapshot_every": 10,
+ "note": "y=6 khi đi xuống ở k=49 -> z = 13 - 49*8/60 = 6.47",
+ "expect": [
+  {
+   "snapshot": 120,
+   "path": "player.pos.1",
+   "equals": 6
+  },
+  {
+   "snapshot": 120,
+   "path": "player.grounded",
+   "equals": true
+  },
+  {
+   "snapshot": 120,
+   "path": "player.pos.2",
+   "between": [
+    5.5,
+    7.5
+   ]
+  }
+ ]
+}

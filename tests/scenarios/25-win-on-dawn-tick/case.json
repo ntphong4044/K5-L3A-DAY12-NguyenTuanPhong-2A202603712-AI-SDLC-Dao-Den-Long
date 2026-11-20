@@ -1,0 +1,23 @@
+{
+ "requirement": "Thắng đúng tick hết giờ vẫn là thắng (all_lit ưu tiên hơn dawn)",
+ "night": 1,
+ "seed": 1,
+ "ticks": 10,
+ "snapshot_every": 10,
+ "expect": [
+  {
+   "event": "game_over",
+   "tick": 1,
+   "data": {
+    "result": "won",
+    "reason": "all_lit"
+   }
+  },
+  {
+   "end": {
+    "state": "won",
+    "score": 350
+   }
+  }
+ ]
+}

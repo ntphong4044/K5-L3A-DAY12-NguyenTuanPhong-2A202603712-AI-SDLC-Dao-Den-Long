@@ -1,7 +1,0 @@
-{ "requirement": "R5 Bóng Mực đuổi và gây mất máu, R6 thua khi hết máu", "seed": 1, "ticks": 600, "snapshot_every": 10,
-  "expect": [
-    { "event": "player_hit", "tick": 155, "data": { "by": "shade", "flames": 1, "dropped": 2 } },
-    { "event": "player_hit", "tick": 245, "data": { "by": "shade", "flames": 0, "dropped": 1 } },
-    { "event": "game_over", "tick": 245, "data": { "result": "lost", "reason": "no_flames" } },
-    { "end": { "state": "lost", "ticks": 245 } }
-  ] }

@@ -1,0 +1,22 @@
+{
+ "requirement": "Tỏa Sáng trúng Gió Lạc đang chase -> flee không cướp",
+ "night": 2,
+ "seed": 1,
+ "ticks": 60,
+ "snapshot_every": 10,
+ "expect": [
+  {
+   "snapshot": 10,
+   "path": "drifters.0.state",
+   "equals": "flee"
+  },
+  {
+   "no_event": "drifter_steal"
+  },
+  {
+   "snapshot": 10,
+   "path": "drifters.0.stolen",
+   "equals": 0
+  }
+ ]
+}

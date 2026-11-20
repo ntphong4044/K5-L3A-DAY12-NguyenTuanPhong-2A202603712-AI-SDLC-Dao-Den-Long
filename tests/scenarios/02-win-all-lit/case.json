@@ -1,6 +1,26 @@
-{ "requirement": "R6 thắng khi thắp hết đèn, R7 điểm thưởng", "seed": 1, "ticks": 300, "snapshot_every": 10,
-  "expect": [
-    { "event": "lantern_lit", "tick": 1, "data": { "lantern_id": "L5" } },
-    { "event": "game_over", "tick": 1, "data": { "result": "won", "reason": "all_lit" } },
-    { "end": { "state": "won", "ticks": 1, "score": 349 } }
-  ] }
+{
+ "requirement": "R6 thắng khi thắp hết; thưởng x2/giây",
+ "night": 1,
+ "seed": 1,
+ "ticks": 300,
+ "snapshot_every": 10,
+ "note": "100 + 100 + floor(99.983)*2 + 3*50 = 548",
+ "changed_in_phase2": "per_second_left 1->2, per_mote khi nạp, lantern_cost 10",
+ "expect": [
+  {
+   "event": "game_over",
+   "tick": 1,
+   "data": {
+    "result": "won",
+    "reason": "all_lit"
+   }
+  },
+  {
+   "end": {
+    "state": "won",
+    "ticks": 1,
+    "score": 548
+   }
+  }
+ ]
+}

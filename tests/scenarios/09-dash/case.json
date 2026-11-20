@@ -1,0 +1,37 @@
+{
+ "requirement": "Lướt 14 m/s x 12 tick, hồi 90 tick từ lúc bắt đầu, đứng yên thì theo hướng mặt",
+ "night": 1,
+ "seed": 1,
+ "ticks": 130,
+ "snapshot_every": 10,
+ "note": "12*14/60=2.8 m. Nhấn lại ở tick 31 còn cooldown 60 tick. Tick 101 hết cooldown; đứng yên nên lướt theo hướng mặt +Z.",
+ "expect": [
+  {
+   "event": "dash",
+   "tick": 1
+  },
+  {
+   "event": "dash",
+   "tick": 101
+  },
+  {
+   "count": "dash",
+   "equals": 2
+  },
+  {
+   "snapshot": 20,
+   "path": "player.pos.2",
+   "equals": 2.8
+  },
+  {
+   "snapshot": 20,
+   "path": "player.dash_cd_s",
+   "equals": 1.183
+  },
+  {
+   "snapshot": 120,
+   "path": "player.pos.2",
+   "equals": 5.6
+  }
+ ]
+}

@@ -1,0 +1,30 @@
+{
+ "requirement": "Đom đóm: 20 điểm khác nhau lúc đầu, +1 mỗi 240 tick vào điểm trống, hết điểm thì bỏ lượt",
+ "night": 1,
+ "seed": 1,
+ "ticks": 1300,
+ "snapshot_every": 240,
+ "note": "Đêm 1 có 24 điểm sinh",
+ "expect": [
+  {
+   "snapshot": 0,
+   "path": "motes_active",
+   "equals": 20
+  },
+  {
+   "snapshot": 240,
+   "path": "motes_active",
+   "equals": 21
+  },
+  {
+   "snapshot": 960,
+   "path": "motes_active",
+   "equals": 24
+  },
+  {
+   "snapshot": 1200,
+   "path": "motes_active",
+   "equals": 24
+  }
+ ]
+}

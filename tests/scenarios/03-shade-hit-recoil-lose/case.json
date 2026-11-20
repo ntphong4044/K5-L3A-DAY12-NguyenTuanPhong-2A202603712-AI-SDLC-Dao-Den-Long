@@ -1,0 +1,58 @@
+{
+ "requirement": "R5 chạm mất lửa, rơi đom đóm ra đất, recoil 2 m/60 tick, bất tử 90; thua no_flames",
+ "night": 1,
+ "seed": 1,
+ "ticks": 400,
+ "snapshot_every": 10,
+ "note": "4 m/s = 0.0667/tick: 10.03-136*0.0667=0.963<=1 -> tick 136. Recoil tick 137..196 (+2 m) -> 2.963; chase lại từ tick 197, 30 tick -> 0.963 ở tick 226; bất tử 90 tick hết đúng tick 226.",
+ "changed_in_phase2": "shade_speed 3.5->4, thêm recoil, đom đóm rơi ra đất thay vì mất",
+ "expect": [
+  {
+   "event": "player_hit",
+   "tick": 136,
+   "data": {
+    "by": "shade",
+    "flames": 1,
+    "dropped": 2
+   }
+  },
+  {
+   "snapshot": 140,
+   "path": "shades.0.state",
+   "equals": "recoil"
+  },
+  {
+   "snapshot": 140,
+   "path": "motes_active",
+   "equals": 2
+  },
+  {
+   "snapshot": 140,
+   "path": "motes.0.kind",
+   "equals": "dropped"
+  },
+  {
+   "event": "player_hit",
+   "tick": 226,
+   "data": {
+    "by": "shade",
+    "flames": 0,
+    "dropped": 1
+   }
+  },
+  {
+   "event": "game_over",
+   "tick": 226,
+   "data": {
+    "result": "lost",
+    "reason": "no_flames"
+   }
+  },
+  {
+   "end": {
+    "state": "lost",
+    "ticks": 226
+   }
+  }
+ ]
+}

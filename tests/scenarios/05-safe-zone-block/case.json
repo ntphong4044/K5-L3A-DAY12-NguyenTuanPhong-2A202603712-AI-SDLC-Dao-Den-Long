@@ -1,0 +1,25 @@
+{
+ "requirement": "Vùng an toàn 6 m quanh đèn đã sáng chặn Bóng Mực ở mép",
+ "night": 1,
+ "seed": 1,
+ "ticks": 1200,
+ "snapshot_every": 10,
+ "note": "wander trôi 1 m/s tới 12 m thì chase, bị chặn ở 6 + 0.001",
+ "changed_in_phase2": "safe_radius 5->6",
+ "expect": [
+  {
+   "no_event": "player_hit"
+  },
+  {
+   "snapshot": 1200,
+   "path": "shades.0.pos.0",
+   "equals": 6.001
+  },
+  {
+   "end": {
+    "state": "playing",
+    "ticks": 1200
+   }
+  }
+ ]
+}

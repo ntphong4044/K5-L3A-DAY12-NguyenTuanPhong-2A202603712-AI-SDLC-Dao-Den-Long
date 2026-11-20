@@ -1,0 +1,27 @@
+{
+ "requirement": "Đêm 3: mép tầng là vách đứng, không đi lên được",
+ "night": 3,
+ "seed": 1,
+ "ticks": 60,
+ "snapshot_every": 10,
+ "expect": [
+  {
+   "snapshot": 60,
+   "path": "player.pos.2",
+   "between": [
+    11.85,
+    12
+   ]
+  },
+  {
+   "snapshot": 60,
+   "path": "player.pos.1",
+   "equals": 0
+  },
+  {
+   "snapshot": 60,
+   "path": "player.grounded",
+   "equals": true
+  }
+ ]
+}
