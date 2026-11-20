@@ -13,3 +13,6 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run proof
+      - run: npm run soak                 # Phase 4: 10 Đêm, crashes = 0
+      - run: npm run bench:cpu -- --seed 42 --duration 3 --out "${{ runner.temp }}/bench-cpu.json"   # không có GPU trên CI: chỉ kiểm cảnh bench dựng và ghi đúng trường
+      - run: npm run release              # zip bản phát hành phải tạo được và đủ tệp
