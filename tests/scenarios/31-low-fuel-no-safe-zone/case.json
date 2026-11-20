@@ -1,0 +1,20 @@
+{
+ "requirement": "Ticket-03 mục 2: đèn có fuel < 30 mất vùng an toàn; Bóng Mực ở 5 m không bị chặn → drain",
+ "night": 1,
+ "seed": 1,
+ "ticks": 60,
+ "snapshot_every": 10,
+ "note": "Đèn (10,0,0) fuel 29 (<30) → mất vùng an toàn. Bóng Mực S1 (10,1,5) wander tới đèn (hút dần) — kiểm tra nó KHÔNG bị đẩy ra 6 m như vùng an toàn bình thường.",
+ "expect": [
+  {
+   "snapshot": 60,
+   "path": "shades.0.state",
+   "equals": "drain"
+  },
+  {
+   "snapshot": 60,
+   "path": "lanterns.0.lit",
+   "equals": true
+  }
+ ]
+}

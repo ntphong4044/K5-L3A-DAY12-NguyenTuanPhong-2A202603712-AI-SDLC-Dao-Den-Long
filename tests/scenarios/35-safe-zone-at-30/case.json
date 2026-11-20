@@ -1,0 +1,26 @@
+{
+ "requirement": "Ticket-03 mục 2: đèn fuel = 30 còn vùng an toàn; fuel < 30 mất vùng an toàn",
+ "night": 1,
+ "seed": 1,
+ "ticks": 3,
+ "snapshot_every": 1,
+ "note": "fuel 30+1/60: bước 8 tick 1 dầu ĐÚNG 30 -> còn vùng an toàn, Bóng Mực (chase Mây ở tâm) bị chặn ở 6.001. Tick 2: 29.983 < 30 -> mất vùng, tiến 4/60 = 0.0667 -> 5.934.",
+ "expect": [
+  {
+   "snapshot": 1,
+   "path": "shades.0.pos.0",
+   "equals": 6.001
+  },
+  {
+   "snapshot": 2,
+   "path": "shades.0.pos.0",
+   "equals": 5.934
+  },
+  {
+   "snapshot": 1,
+   "path": "lanterns.0.fuel",
+   "equals": 30
+  }
+ ],
+ "changed_in_phase3_review": "Bản đầu đặt Bóng Mực cách 10 m nên không chạm mép 6 m — test luôn đạt. Viết lại để kiểm đúng mốc 30."
+}

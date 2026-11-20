@@ -23,7 +23,7 @@
   {
    "snapshot": 0,
    "path": "time_left_s",
-   "equals": 300
+   "equals": 240
   },
   {
    "snapshot": 0,
@@ -61,5 +61,6 @@
    "path": "shades.0.state",
    "equals": "wander"
   }
- ]
+ ],
+ "changed_in_phase3": "Ticket-03: night1_duration_s 300 -> 240 (số liệu thời lượng). Vị trí đèn / lịch Bóng Mực giữ nguyên."
 }

@@ -1,0 +1,22 @@
+{
+ "requirement": "Ticket-03 mục 3: hết giờ mà dưới ngưỡng (2/5 < 3) → thua dawn",
+ "night": 1,
+ "seed": 1,
+ "ticks": 5,
+ "note": "5 đèn, chỉ 2 đèn sáng. time_left_s = 2/60 → game_over @tick 2, reason dawn.",
+ "expect": [
+  {
+   "event": "game_over",
+   "tick": 2,
+   "data": {
+    "result": "lost",
+    "reason": "dawn"
+   }
+  },
+  {
+   "end": {
+    "state": "lost"
+   }
+  }
+ ]
+}

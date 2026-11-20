@@ -1,0 +1,22 @@
+{
+ "requirement": "Ticket-03 mục 2: châm dầu lên ≥ 30 khi có Bóng Mực trong 6 m → bị đẩy ra mép trong ≤ 30 tick, không gây sát thương",
+ "night": 1,
+ "seed": 1,
+ "ticks": 40,
+ "snapshot_every": 10,
+ "note": "Đèn (0,0,0) lit fuel 20, Mây (2,0,0) mang 10, Bóng Mực S1 (1,1,0) đang drain. Tick 1: hao 1 rồi châm dầu — need = ceil((100 − 19.983)/10) = 9, mang 10 → used 9, fuel 100.",
+ "expect": [
+  {
+   "event": "refuel",
+   "tick": 1,
+   "data": {
+    "lantern_id": "L1",
+    "amount": 9,
+    "fuel": 100
+   }
+  },
+  {
+   "no_event": "player_hit"
+  }
+ ]
+}

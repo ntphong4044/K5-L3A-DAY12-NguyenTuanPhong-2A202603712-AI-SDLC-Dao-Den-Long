@@ -1,0 +1,33 @@
+{
+ "requirement": "Ticket-03 mục 1: đèn cạn dầu → tắt, deposited = 0, ever_lit = true, sự kiện lantern_out",
+ "night": 1,
+ "seed": 1,
+ "ticks": 70,
+ "snapshot_every": 10,
+ "note": "fuel 1.0 = 60 đơn vị; hao tick 1..60 -> cạn ở tick 60 -> lantern_out @60.",
+ "expect": [
+  {
+   "event": "lantern_out",
+   "tick": 60,
+   "data": {
+    "lantern_id": "L1"
+   }
+  },
+  {
+   "snapshot": 70,
+   "path": "lanterns.0.lit",
+   "equals": false
+  },
+  {
+   "snapshot": 70,
+   "path": "lanterns.0.ever_lit",
+   "equals": true
+  },
+  {
+   "snapshot": 70,
+   "path": "lanterns.0.fuel",
+   "equals": 0
+  }
+ ],
+ "changed_in_phase3_review": "Review: Ticket-03 trừ dầu ở bước 2 của MỌI tick (kể cả tick 1); bản đầu bỏ qua tick 1 nên lệch 1 tick."
+}

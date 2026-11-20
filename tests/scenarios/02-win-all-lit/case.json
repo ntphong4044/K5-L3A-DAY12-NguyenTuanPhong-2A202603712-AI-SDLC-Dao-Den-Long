@@ -1,26 +1,36 @@
 {
- "requirement": "R6 thắng khi thắp hết; thưởng x2/giây",
+ "requirement": "Ticket-03: thắp đủ đèn KHÔNG kết thúc Đêm; thắng ở bình minh (dawn_survived) khi đủ ngưỡng đèn",
  "night": 1,
  "seed": 1,
- "ticks": 300,
+ "ticks": 10,
  "snapshot_every": 10,
- "note": "100 + 100 + floor(99.983)*2 + 3*50 = 548",
+ "note": "Tính tay: nạp 10x5=50, thắp lần đầu +100; bình minh: L1-L4 hao còn 99.983 -> 4x(50+99)=596, L5 vừa thắp 100 -> 150; 3 lửa x50=150. Tổng 1046.",
  "changed_in_phase2": "per_second_left 1->2, per_mote khi nạp, lantern_cost 10",
  "expect": [
+  {
+   "event": "lantern_lit",
+   "tick": 1,
+   "data": {
+    "lantern_id": "L5",
+    "relight": false
+   }
+  },
   {
    "event": "game_over",
    "tick": 1,
    "data": {
     "result": "won",
-    "reason": "all_lit"
+    "reason": "dawn_survived"
    }
   },
   {
    "end": {
     "state": "won",
     "ticks": 1,
-    "score": 548
+    "score": 1046
    }
   }
- ]
+ ],
+ "changed_in_phase3": "Ticket-03 bỏ all_lit; thắng khi hết giờ và số đèn sáng ≥ ceil(0.6×tổng). Scenario: 5/5 sáng, time_left_s = 1/60",
+ "changed_in_phase3_review": "Bản đầu bỏ kỳ vọng điểm; thêm lại điểm tính tay."
 }

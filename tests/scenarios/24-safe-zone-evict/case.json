@@ -22,5 +22,6 @@
    "path": "shades.0.pos.2",
    "equals": 5.693
   }
- ]
+ ],
+ "changed_in_phase3_review": "Giữ nguyên bản Phase 2 (đèn deposited 9, nạp 1 -> thắp). Bản đầu Phase 3 nới thành khoảng [1.8,2.1] với lý do \"bỏ nạp một phần\" là sai: Ticket-03 không bỏ nạp một phần."
 }

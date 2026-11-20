@@ -1,5 +1,5 @@
 {
- "requirement": "R3 nhặt, R4 nạp & thắp, +10 mỗi đom đóm NẠP",
+ "requirement": "R3 nhặt, R4 nạp & thắp lần đầu (+5 mỗi đom đóm nạp, +100 thắp lần đầu)",
  "night": 1,
  "seed": 1,
  "ticks": 120,
@@ -48,7 +48,8 @@
    "event": "lantern_lit",
    "tick": 91,
    "data": {
-    "lantern_id": "L1"
+    "lantern_id": "L1",
+    "relight": false
    }
   },
   {
@@ -59,9 +60,11 @@
   {
    "end": {
     "state": "playing",
-    "score": 200,
+    "score": 150,
     "ticks": 120
    }
   }
- ]
+ ],
+ "changed_in_phase3": "Ticket-03 mục 5: điểm 10x5 + 100 = 150 (P2: 200)",
+ "changed_in_phase3_review": "Review: thắp đèn vẫn phát sự kiện deposit (Ticket-02, không bị Ticket-03 thay); bản đầu đổi sang refuel là sai."
 }

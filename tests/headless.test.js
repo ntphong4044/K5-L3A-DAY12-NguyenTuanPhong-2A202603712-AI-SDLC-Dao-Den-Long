@@ -114,15 +114,21 @@ test('thiếu tham số bắt buộc => mã thoát khác 0', () => {
   assert.notEqual(headless(['--seed', '1', '--night', '1', '--ticks', '5']).code, 0);
 });
 
-test('game.contract.json đủ trường bắt buộc', () => {
+test('game.contract.json đủ trường bắt buộc (v1.2)', () => {
   const c = JSON.parse(fs.readFileSync(path.join(ROOT, 'game.contract.json'), 'utf8'));
-  assert.equal(c.contract_version, '1.1');
+  assert.equal(c.contract_version, '1.2');
   for (const k of ['team', 'build_cmd', 'run_cmd', 'headless_cmd']) assert.equal(typeof c[k], 'string');
   const keys = ['player_speed', 'carry_capacity', 'lantern_cost', 'lantern_count_night1', 'pickup_radius', 'interact_radius',
     'pulse_cost', 'pulse_radius', 'night1_duration_s', 'flames', 'invuln_s', 'hit_drop_ratio', 'pulse_stun_s',
     'pulse_push_m', 'pulse_cooldown_s', 'safe_radius', 'shade_speed', 'shade_hit_radius', 'fall_enabled',
-    'dash_speed', 'dash_duration_s', 'dash_cooldown_s', 'night2_duration_s', 'night3_duration_s'];
+    'dash_speed', 'dash_duration_s', 'dash_cooldown_s', 'night2_duration_s', 'night3_duration_s',
+    // Ticket-03 mục 7
+    'fuel_max', 'fuel_decay_per_s', 'fuel_per_mote', 'relight_cost', 'win_ratio', 'drain_per_s',
+    'low_fuel_threshold', 'capacity_max'];
   for (const k of keys) assert.ok(k in c.tuning, k);
   assert.equal(c.tuning.lantern_count_night1, 5);
-  for (const k of ['per_mote', 'per_lantern', 'per_stun', 'per_second_left', 'per_flame_left']) assert.equal(typeof c.tuning.score[k], 'number');
+  for (const k of ['per_mote', 'per_lantern', 'per_relight', 'per_stun', 'per_stun_bonus', 'per_lantern_left', 'per_fuel_left', 'per_flame_left']) {
+    assert.equal(typeof c.tuning.score[k], 'number', k);
+  }
+  assert.equal(c.tuning.score.per_second_left, undefined, 'Ticket-03 bỏ thưởng thời gian');
 });

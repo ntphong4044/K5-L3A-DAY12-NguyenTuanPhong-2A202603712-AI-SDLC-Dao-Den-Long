@@ -6,7 +6,7 @@
  "player": {
   "carried": 10
  },
- "time_left_s": 100,
+ "time_left_s": 0.016666666666666666,
  "lanterns": [
   {
    "id": "L1",

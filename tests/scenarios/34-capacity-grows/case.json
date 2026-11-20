@@ -1,0 +1,28 @@
+{
+ "requirement": "Ticket-03 mục 4: sức chứa = 10 + 2 × successful_lights (tối đa 20); đèn đặt sẵn không tính",
+ "night": 1,
+ "seed": 1,
+ "ticks": 5,
+ "snapshot_every": 5,
+ "note": "Mây mang 10, thắp L1 tick 1 → successful_lights 1 → capacity 12; nhặt thêm 2 đom đóm tại (0,0,0.2) và (0,0,0.3).",
+ "expect": [
+  {
+   "event": "lantern_lit",
+   "tick": 1,
+   "data": {
+    "lantern_id": "L1",
+    "relight": false
+   }
+  },
+  {
+   "snapshot": 5,
+   "path": "player.capacity",
+   "equals": 12
+  },
+  {
+   "snapshot": 5,
+   "path": "player.carried",
+   "equals": 2
+  }
+ ]
+}

@@ -1,0 +1,38 @@
+{
+ "requirement": "Ticket-03 mục 1: thắp lại đèn ever_lit chỉ cần 5 đom đóm, +40 điểm, relight: true, relit_count++",
+ "night": 1,
+ "seed": 1,
+ "ticks": 3,
+ "snapshot_every": 3,
+ "note": "Đèn đã từng sáng (ever_lit: true), fuel 0; Mây mang 5. Tick 1: trừ 5 đom, đèn sáng fuel 100, điểm 40 + 5×5 = 65.",
+ "expect": [
+  {
+   "event": "deposit",
+   "tick": 1,
+   "data": {
+    "lantern_id": "L1",
+    "amount": 5,
+    "deposited": 5
+   }
+  },
+  {
+   "event": "lantern_lit",
+   "tick": 1,
+   "data": {
+    "lantern_id": "L1",
+    "relight": true
+   }
+  },
+  {
+   "snapshot": 3,
+   "path": "lanterns.0.relit_count",
+   "equals": 1
+  },
+  {
+   "end": {
+    "state": "playing"
+   }
+  }
+ ],
+ "changed_in_phase3_review": "Review: thắp đèn vẫn phát sự kiện deposit (Ticket-02, không bị Ticket-03 thay); bản đầu đổi sang refuel là sai."
+}

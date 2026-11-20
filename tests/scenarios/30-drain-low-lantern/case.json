@@ -1,0 +1,20 @@
+{
+ "requirement": "Ticket-03 mục 2: Bóng Mực wander nhắm đèn yếu (fuel<30) rồi chuyển drain, hút 5/giây",
+ "night": 1,
+ "seed": 1,
+ "ticks": 30,
+ "snapshot_every": 10,
+ "note": "Đèn (10,0,0) fuel 20; Mây xa; S1 (12,1,0) cách 2 m → wander đi vào và chuyển drain trong 30 tick.",
+ "expect": [
+  {
+   "snapshot": 30,
+   "path": "shades.0.state",
+   "equals": "drain"
+  },
+  {
+   "snapshot": 30,
+   "path": "shades.0.target_lantern_id",
+   "equals": "L1"
+  }
+ ]
+}

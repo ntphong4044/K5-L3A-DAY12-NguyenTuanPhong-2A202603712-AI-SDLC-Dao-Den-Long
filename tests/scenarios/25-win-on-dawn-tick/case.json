@@ -1,23 +1,34 @@
 {
- "requirement": "Thắng đúng tick hết giờ vẫn là thắng (all_lit ưu tiên hơn dawn)",
+ "requirement": "Thắng ở tick bình minh với đủ ngưỡng đèn (Ticket-03: dawn_survived)",
  "night": 1,
  "seed": 1,
  "ticks": 10,
  "snapshot_every": 10,
  "expect": [
   {
+   "event": "lantern_lit",
+   "tick": 1,
+   "data": {
+    "lantern_id": "L5",
+    "relight": false
+   }
+  },
+  {
    "event": "game_over",
    "tick": 1,
    "data": {
     "result": "won",
-    "reason": "all_lit"
+    "reason": "dawn_survived"
    }
   },
   {
    "end": {
     "state": "won",
-    "score": 350
+    "score": 1046
    }
   }
- ]
+ ],
+ "changed_in_phase3": "Ticket-03: all_lit -> dawn_survived; 5/5 đèn sáng tại tick hết giờ",
+ "note": "Tính tay: nạp 10x5=50, thắp lần đầu +100; bình minh: L1-L4 hao còn 99.983 -> 4x(50+99)=596, L5 vừa thắp 100 -> 150; 3 lửa x50=150. Tổng 1046.",
+ "changed_in_phase3_review": "Bản đầu bỏ kỳ vọng điểm; thêm lại điểm tính tay."
 }

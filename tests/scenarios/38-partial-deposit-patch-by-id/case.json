@@ -1,0 +1,55 @@
+{
+ "requirement": "Hồi quy P1–P2: scenario.lanterns cập nhật theo id (5 đèn vẫn còn); nạp một phần có deposit, đèn nhớ tiến độ",
+ "night": 1,
+ "seed": 1,
+ "ticks": 10,
+ "snapshot_every": 1,
+ "note": "Mang 4: lần 1 nạp 4 (deposited 4, chưa thắp); lần 2 hết đom đóm nên không có event. Đèn L2..L5 giữ vị trí chuẩn.",
+ "expect": [
+  {
+   "snapshot": 0,
+   "path": "lanterns.length",
+   "equals": 5
+  },
+  {
+   "snapshot": 0,
+   "path": "lanterns.1.pos",
+   "equals": [
+    23.8,
+    0,
+    7.7
+   ]
+  },
+  {
+   "event": "deposit",
+   "tick": 1,
+   "data": {
+    "lantern_id": "L1",
+    "amount": 4,
+    "deposited": 4
+   }
+  },
+  {
+   "count": "deposit",
+   "equals": 1
+  },
+  {
+   "no_event": "lantern_lit"
+  },
+  {
+   "snapshot": 10,
+   "path": "lanterns.0.deposited",
+   "equals": 4
+  },
+  {
+   "snapshot": 10,
+   "path": "lanterns.0.lit",
+   "equals": false
+  },
+  {
+   "end": {
+    "score": 20
+   }
+  }
+ ]
+}

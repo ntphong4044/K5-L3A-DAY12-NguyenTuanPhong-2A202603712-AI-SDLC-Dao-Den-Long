@@ -26,7 +26,7 @@
   {
    "snapshot": 20,
    "path": "time_left_s",
-   "equals": 299.833
+   "equals": 239.833
   },
   {
    "snapshot": 20,
@@ -49,5 +49,6 @@
     "state": "playing"
    }
   }
- ]
+ ],
+ "changed_in_phase3": "Ticket-03: night1_duration_s 240"
 }

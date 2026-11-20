@@ -19,7 +19,8 @@
    "event": "lantern_lit",
    "tick": 101,
    "data": {
-    "lantern_id": "L1"
+    "lantern_id": "L1",
+    "relight": false
    }
   },
   {
@@ -27,5 +28,7 @@
    "path": "lanterns.0.lit",
    "equals": true
   }
- ]
+ ],
+ "changed_in_phase3": "Ticket-03: deposit -> refuel (thắp trực tiếp +5×số đom +100)",
+ "changed_in_phase3_review": "Review: thắp đèn vẫn phát sự kiện deposit (Ticket-02, không bị Ticket-03 thay); bản đầu đổi sang refuel là sai."
 }

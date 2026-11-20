@@ -1,0 +1,31 @@
+{
+ "requirement": "Ticket-03 mục 5: Tỏa Sáng trúng Bóng Mực đang drain được TỔNG +15 (5 + bonus 10)",
+ "night": 1,
+ "seed": 1,
+ "ticks": 3,
+ "snapshot_every": 1,
+ "note": "Bóng Mực drain, Mây mang 10, trong 5 m. Tổng +15 theo nguyên văn ticket.",
+ "expect": [
+  {
+   "event": "pulse",
+   "tick": 1,
+   "data": {
+    "stunned_ids": [
+     "S1"
+    ]
+   }
+  },
+  {
+   "snapshot": 1,
+   "path": "shades.0.state",
+   "equals": "stunned"
+  },
+  {
+   "end": {
+    "state": "playing",
+    "score": 15
+   }
+  }
+ ],
+ "changed_in_phase3_review": "Bản đầu kỳ vọng 30 (bonus 25) là đọc sai câu \"tổng +15 nếu drain\"; sửa về 15."
+}

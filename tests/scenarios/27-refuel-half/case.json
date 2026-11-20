@@ -1,0 +1,32 @@
+{
+ "requirement": "Ticket-03 mục 1: châm dầu — used = min(đang mang, ceil((100 − fuel)/10)); fuel = min(100, fuel + 10×used)",
+ "night": 1,
+ "seed": 1,
+ "ticks": 5,
+ "snapshot_every": 5,
+ "note": "Đèn fuel 20; bước 2 tick 1 hao còn 19.983 -> ceil(80.017/10) = 9 -> used 9, fuel 100, +45 điểm, còn mang 1.",
+ "expect": [
+  {
+   "event": "refuel",
+   "tick": 1,
+   "data": {
+    "lantern_id": "L1",
+    "amount": 9,
+    "fuel": 100
+   }
+  },
+  {
+   "snapshot": 5,
+   "path": "player.carried",
+   "equals": 1
+  },
+  {
+   "end": {
+    "state": "playing",
+    "score": 45,
+    "ticks": 5
+   }
+  }
+ ],
+ "changed_in_phase3_review": "Review: Ticket-03 trừ dầu ở bước 2 của MỌI tick (kể cả tick 1); bản đầu bỏ qua tick 1 nên lệch 1 tick."
+}
