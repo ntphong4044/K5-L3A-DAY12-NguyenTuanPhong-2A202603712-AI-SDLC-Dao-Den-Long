@@ -2,10 +2,13 @@
 export class Sound {
   constructor() { this.ctx = null; this.master = null; this.volume = 0.6; this.musicTimer = null; }
   ensure() {
-    if (this.ctx) { if (this.ctx.state === 'suspended') this.ctx.resume(); return true; }
+    if (this.ctx) { if (this.ctx.state === 'suspended') this.ctx.resume().catch(() => {}); return true; }
     const AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return false;
-    this.ctx = new AC();
+    // Trình duyệt có thể từ chối tạo AudioContext (chưa có thao tác người dùng, bị chặn quyền âm thanh):
+    // game vẫn chạy, chỉ không có tiếng. Lỗi này không được làm hỏng nút vừa bấm.
+    try { this.ctx = new AC(); } catch { return false; }
+    if (!this.ctx) return false;
     this.master = this.ctx.createGain();
     this.master.gain.value = this.volume;
     this.master.connect(this.ctx.destination);

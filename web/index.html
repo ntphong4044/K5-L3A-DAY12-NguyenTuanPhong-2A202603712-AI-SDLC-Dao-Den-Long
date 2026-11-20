@@ -5,48 +5,72 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Đảo Đèn Lồng</title>
 <style>
-  :root { --night: #0E1430; --fog: #1B2350; --lit: #FFB347; --core: #FFE9B0; --gold: #F2C14E; --danger: #FF5A5F; --text: #F5F1E6; --red: #C8102E; }
-  html, body { margin: 0; height: 100%; background: var(--night); color: var(--text); font-family: system-ui, "Segoe UI", sans-serif; overflow: hidden; user-select: none; }
+  :root { --night: #0E1430; --fog: #1B2350; --lit: #FFB347; --core: #FFE9B0; --gold: #F2C14E; --danger: #FF5A5F; --text: #F5F1E6; --red: #C8102E;
+    --fs: 18px; --fs-hud: 19px; }
+  /* Ticket-04 mục 4: chữ UI tối thiểu 18 px ở 1280×720; "Chữ lớn" nhân ×1.25. */
+  body.large { --fs: 22.5px; --fs-hud: 24px; }
+  html, body { margin: 0; height: 100%; background: var(--night); color: var(--text); font-family: system-ui, "Segoe UI", sans-serif; overflow: hidden; user-select: none; font-size: var(--fs); }
   canvas { display: block; }
-  .hud { position: fixed; pointer-events: none; text-shadow: 0 1px 3px #000; font-size: 16px; }
-  #flames { top: 12px; left: 14px; font-size: 26px; color: var(--lit); letter-spacing: 4px; }
-  #timer { top: 10px; left: 50%; transform: translateX(-50%); font-size: 30px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .hud { position: fixed; pointer-events: none; text-shadow: 0 1px 3px #000; font-size: var(--fs-hud); }
+  #flames { top: 12px; left: 14px; font-size: calc(var(--fs-hud) + 8px); color: var(--lit); letter-spacing: 4px; }
+  #timer { top: 8px; left: 50%; transform: translateX(-50%); font-size: calc(var(--fs-hud) + 12px); font-weight: 700; font-variant-numeric: tabular-nums; }
   #timer.low { color: var(--danger); animation: blink 0.8s steps(2) infinite; }
   @keyframes blink { 50% { opacity: 0.25; } }
+  /* Ticket-04 mục 4: giảm chuyển động tắt hiệu ứng chớp màn hình (nhấp nháy, giật sáng). */
+  body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after { animation: none !important; transition: none !important; }
   #topright { top: 12px; right: 14px; text-align: right; line-height: 1.5; }
-  #topright b { color: var(--gold); font-size: 20px; }
-  #nightname { top: 48px; left: 50%; transform: translateX(-50%); font-size: 13px; opacity: 0.8; }
-  #bar { bottom: 18px; left: 50%; transform: translateX(-50%); display: flex; gap: 5px; }
-  #carry { bottom: 46px; left: 50%; transform: translateX(-50%); font-size: 13px; opacity: 0.85; }
+  #topright b { color: var(--gold); font-size: calc(var(--fs-hud) + 2px); }
+  #nightname { top: 50px; left: 50%; transform: translateX(-50%); font-size: var(--fs-hud); opacity: 0.85; }
+  #bar { bottom: 14px; left: 50%; transform: translateX(-50%); display: flex; gap: 5px; }
+  #carry { bottom: 44px; left: 50%; transform: translateX(-50%); font-size: var(--fs-hud); opacity: 0.9; }
   /* Ticket-03 mục 6: bảng màu dễ phân biệt — đổi #FF5A5F sang trắng và thêm ⚠ */
   body.cb #timer.low { color: #FFF; }
   body.cb #timer.low::after { content: " ⚠"; }
   body.cb #windwarn { color: #FFF; }
   #bar i { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #FFE58A66; background: #0008; }
   #bar i.on { background: radial-gradient(circle, #FFF6C2 30%, #FFE58A 70%); border-color: #FFE58A; box-shadow: 0 0 10px #FFE58A; }
-  #cds { bottom: 14px; right: 16px; display: flex; gap: 12px; }
-  .cd { width: 54px; height: 54px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; font-weight: 700; border: 2px solid var(--gold); background: conic-gradient(#0009 var(--p, 0%), #F2C14E33 0); }
+  #cds { bottom: 12px; right: 16px; display: flex; gap: 12px; }
+  .cd { width: 72px; height: 72px; border-radius: 50%; display: grid; place-items: center; font-size: var(--fs-hud); font-weight: 700; border: 2px solid var(--gold); background: conic-gradient(#0009 var(--p, 0%), #F2C14E33 0); }
   .cd.ready { box-shadow: 0 0 12px var(--gold); }
-  #prompt { bottom: 70px; left: 50%; transform: translateX(-50%); font-size: 18px; color: var(--core); background: #0007; padding: 4px 12px; border-radius: 8px; }
+  #prompt { bottom: 74px; left: 50%; transform: translateX(-50%); font-size: var(--fs-hud); color: var(--core); background: #0007; padding: 4px 12px; border-radius: 8px; }
   #charm { bottom: 76px; right: 16px; color: var(--red); font-weight: 700; }
   #arrow { width: 0; height: 0; border-left: 14px solid transparent; border-right: 14px solid transparent; border-bottom: 30px solid var(--lit); filter: drop-shadow(0 0 6px var(--lit)); }
-  #windwarn { top: 84px; left: 50%; transform: translateX(-50%); color: #cfe3ff; }
-  #fps { bottom: 4px; left: 6px; font-size: 12px; opacity: 0.7; }
+  #windwarn { top: 86px; left: 50%; transform: translateX(-50%); color: #cfe3ff; }
+  #fps { bottom: 4px; left: 6px; font-size: 18px; opacity: 0.75; }
+  /* Ticket-04 mục 4: phụ đề / chỉ báo hình ảnh (Bóng Mực, gió, 10 s cuối, đèn yếu) + mũi tên ở mép. */
+  #subs { top: 96px; left: 14px; display: grid; gap: 4px; max-width: 340px; }
+  #subs div { background: #000a; padding: 3px 9px; border-radius: 6px; border-left: 4px solid var(--gold); font-size: var(--fs-hud); }
+  #subs div.shade { border-left-color: #7A3CFF; }
+  body.cb #subs div.shade { border-left-color: #00B3FF; }
+  #subs div.fuel { border-left-color: var(--danger); }
+  #subs div.dawn { border-left-color: var(--lit); }
+  #edgefont { left: 0; top: 0; width: 0; height: 0; display: none; }
+  .edgearrow { width: 0; height: 0; border-left: 13px solid transparent; border-right: 13px solid transparent; border-bottom: 26px solid #7A3CFF; filter: drop-shadow(0 0 6px #7A3CFF); }
+  body.cb .edgearrow { border-bottom-color: #00B3FF; filter: drop-shadow(0 0 6px #00B3FF); }
   .overlay { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(14, 20, 48, 0.82); }
-  .card { width: min(560px, calc(100vw - 32px)); padding: 26px 30px; border-radius: 14px; background: #1B2350ee; border: 1px solid #F2C14E66; box-shadow: 0 0 40px #FFB34722; }
+  .card { width: min(620px, calc(100vw - 32px)); max-height: calc(100vh - 40px); overflow: auto; padding: 24px 30px; border-radius: 14px; background: #1B2350ee; border: 1px solid #F2C14E66; box-shadow: 0 0 40px #FFB34722; }
   .card h1 { margin: 0 0 6px; color: var(--lit); }
   .card h2 { margin: 0 0 8px; color: var(--gold); }
   .card p { line-height: 1.5; }
   .card .quote { font-style: italic; border-left: 3px solid var(--gold); padding-left: 12px; }
   .card table { width: 100%; border-collapse: collapse; margin: 10px 0; }
-  .card td { padding: 3px 0; } .card td:last-child { text-align: right; color: var(--gold); }
+  .card td, .card th { padding: 3px 4px; text-align: left; }
+  .card td:last-child, .card th:last-child { text-align: right; color: var(--gold); }
+  .card table.board td:last-child { color: var(--text); }
   .btns { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
   button { font: inherit; color: var(--night); background: var(--lit); border: 0; border-radius: 8px; padding: 9px 16px; cursor: pointer; font-weight: 700; }
   button.ghost { background: transparent; color: var(--text); border: 1px solid #F5F1E655; }
-  button:focus-visible { outline: 3px solid var(--core); }
-  label { display: grid; grid-template-columns: 150px 1fr 40px; align-items: center; gap: 10px; margin: 10px 0; }
+  button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid var(--core); outline-offset: 2px; }
+  label { display: grid; grid-template-columns: 210px 1fr 60px; align-items: center; gap: 10px; margin: 10px 0; }
+  label.check { grid-template-columns: 1fr auto; }
   kbd { background: #ffffff1a; border: 1px solid #ffffff33; border-radius: 4px; padding: 0 5px; }
+  .err { color: #FFB0B0; font-size: var(--fs); min-height: 1.4em; }
+  .ok { color: #BDF3C8; font-size: var(--fs); min-height: 1.4em; }
   .hidden { display: none !important; }
+  .keys { width: 100%; border-collapse: collapse; }
+  .keys td { padding: 4px 2px; }
+  .keys button { padding: 5px 10px; min-width: 110px; }
+  .keys .conflict { border-color: var(--danger); }
 </style>
 <script type="importmap">{ "imports": { "three": "/node_modules/three/build/three.module.js" } }</script>
 </head>
@@ -56,6 +80,7 @@
   <div id="timer" class="hud"></div>
   <div id="nightname" class="hud"></div>
   <div id="topright" class="hud"></div>
+  <div id="subs" class="hud"></div>
   <div id="windwarn" class="hud hidden">🍃 Gió sắp nổi…</div>
   <div id="prompt" class="hud hidden"></div>
   <div id="charm" class="hud hidden"></div>

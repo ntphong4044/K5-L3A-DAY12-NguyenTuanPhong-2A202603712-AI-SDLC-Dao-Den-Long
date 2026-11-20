@@ -4,6 +4,9 @@ import * as THREE from 'three';
 import { createGame, step, timeLeft, litCount, playerCapacity, winThreshold, fuelOf, isLowFuel, reachesLantern, DT, STD } from '/src/core/sim.js';
 import { getMap } from '/src/core/maps.js';
 import { createBot } from '/src/core/bot.js';
+import { normalizeName } from '/src/core/leaderboard.js';
+import { loadSettings, saveSettings as saveSettingsToDisk, ACTIONS, keyLabel, assignKey, restoreDefaultKeys, keyCodeFromEvent } from '/web/settings.js';
+import { loadLeaderboard, newRunEntries, commitRun, resetLeaderboard } from '/web/store.js';
 import { Sound } from '/web/audio.js';
 
 const contract = await (await fetch('/game.contract.json')).json();
@@ -26,15 +29,35 @@ function applyPalette() {
   document.documentElement.style.setProperty('--danger', palette.danger);
 }
 
-// ---------- Cài đặt (lưu giữa các lần mở) ----------
-const settings = { volume: 0.6, sensitivity: 1, cb: false };
-try { Object.assign(settings, JSON.parse(localStorage.getItem('ddl-settings') || '{}')); } catch {}
+// ---------- Cài đặt (lưu giữa các lần mở; Ticket-04 mục 4: giảm chuyển động, chữ lớn, gán phím) ----------
+const settings = loadSettings(globalThis.localStorage ? (() => { try { return localStorage.getItem('ddl-settings'); } catch { return null; } })() : null);
 if (new URLSearchParams(location.search).has('cb')) settings.cb = true; // chỉ để chụp ảnh chế độ mù màu
-const saveSettings = () => { try { localStorage.setItem('ddl-settings', JSON.stringify(settings)); } catch {} };
+const saveSettings = () => saveSettingsToDisk(settings);
 const sound = new Sound();
 sound.setVolume(settings.volume);
 applyPalette();
 document.body.classList.toggle('cb', !!settings.cb);
+applyDisplay();
+
+/** Áp dụng phần hiển thị của cài đặt: chữ lớn (×1.25) và giảm chuyển động. */
+function applyDisplay() {
+  document.body.classList.toggle('large', settings.fontScale === 1.25);
+  document.body.classList.toggle('reduce-motion', !!settings.reducedMotion);
+}
+
+// Vào thẳng một Đêm bằng bot (`?demo=N`, `?bench=N`) thì bỏ qua các màn hình chờ.
+const autoNight = qs.has('bench') || qs.has('autostart') || qs.has('demo');
+
+/** Một phím đang giữ có khớp hành động không (phím chính đã gán + phím phụ luôn bật). */
+function held(action) {
+  const k = settings.keys[action];
+  if (k && keys.has(k)) return true;
+  return !!ACTIONS.find((a) => a.id === action)?.alt.some((c) => keys.has(c));
+}
+
+// Bảng xếp hạng (Ticket-04 mục 3); tên gần nhất để điền sẵn cho ván sau trong cùng phiên.
+let lastName = '', seed = 0, runSaved = false, nameReturn = () => showMenu();
+let UI_RESULT_TOTALS = [];   // chỉ dùng khi kiểm chứng UI (window.__ddl.demoResult)
 
 // ---------- Renderer / cảnh ----------
 const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: qs.has('shot') });
@@ -150,6 +173,9 @@ function makeLantern(l) {
   // Ticket-03 mục 6: giấy có vết rách để phân biệt đèn tắt không cần màu
   const tear = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.3, 0.05), new THREE.MeshBasicMaterial({ color: '#000' }));
   tear.position.set(-0.55, 3.35, 0); g.add(tear);
+  // Ticket-04 mục 4: chỉ báo "đèn sắp cạn dầu" bằng hình (biểu tượng ⚠ nổi trên đèn) khi fuel < 30.
+  const chop = new THREE.Sprite(new THREE.SpriteMaterial({ map: warnTexture('⚠'), depthTest: false, transparent: true }));
+  chop.scale.set(1.4, 0.9, 1); chop.position.set(0, 5.2, 0); chop.visible = false; g.add(chop);
   const light = new THREE.PointLight(C.lit, 0, 26, 1.3); light.position.y = 3.4; g.add(light);
   const ring = new THREE.Mesh(new THREE.RingGeometry(T.safe_radius - 0.1, T.safe_radius, 64), new THREE.MeshBasicMaterial({ color: C.lit, transparent: true, opacity: 0, side: THREE.DoubleSide }));
   ring.rotation.x = -Math.PI / 2; ring.position.y = 0.06; g.add(ring);
@@ -160,7 +186,20 @@ function makeLantern(l) {
   g.add(barBg, barFg);
   g.position.set(...l.pos);
   dyn.add(g);
-  return { g, head, roof, tear, light, ring, barBg, barFg, headScale: 1 };
+  return { g, head, roof, tear, chop, light, ring, barBg, barFg, headScale: 1 };
+}
+
+/** Kết cấu biểu tượng cảnh báo (⚠) vẽ bằng canvas: không cần file ảnh, rõ ở mọi DPI. */
+function warnTexture(char) {
+  const c = document.createElement('canvas');
+  c.width = 128; c.height = 80;
+  const x = c.getContext('2d');
+  x.fillStyle = '#000a'; x.beginPath(); x.roundRect(4, 4, 120, 72, 12); x.fill();
+  x.fillStyle = '#FFE9B0'; x.font = 'bold 64px system-ui, sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle';
+  x.fillText(char, 64, 44);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
 }
 function makeShade() {
   const g = new THREE.Group();
@@ -196,15 +235,64 @@ const INTRO = {
 
 function card(html) { $('card').innerHTML = html; $('screen').classList.remove('hidden'); const b = $('card').querySelector('button'); if (b) b.focus(); }
 function hideCard() { $('screen').classList.add('hidden'); }
-function bind(id, fn) { const el = $(id); if (el) el.onclick = () => { sound.ensure(); fn(); }; }
+function bind(id, fn) {
+  const el = $(id);
+  if (!el) return;
+  el.onclick = () => {
+    const r = () => fn();
+    // Âm thanh không được chặn chức năng: lỗi AudioContext (trình duyệt chặn, máy không có loa) bị nuốt.
+    try { sound.ensure(); } catch { /* bỏ qua */ }
+    return r();
+  };
+}
 
 function showMenu() {
   phase = 'menu'; $('hudroot').classList.add('hidden');
+  const k = (a) => `<kbd>${keyLabel(settings.keys[a])}</kbd>`;
   card(`<h1>Đảo Đèn Lồng</h1><p>Ba đêm, ba hòn đảo. Giúp Mây thắp lại Đèn Lồng Lớn trước bình minh.</p>
-    <p><kbd>WASD</kbd> đi · <kbd>←</kbd><kbd>→</kbd>/kéo chuột: camera · <kbd>Space</kbd> nhảy · <kbd>Shift</kbd> lướt · <kbd>E</kbd> nạp ánh sáng · <kbd>Q</kbd> tỏa sáng · <kbd>Esc</kbd>/<kbd>P</kbd> tạm dừng</p>
-    <div class="btns"><button id="b-start">Bắt đầu</button><button class="ghost" id="b-set">Cài đặt</button></div>`);
-  bind('b-start', () => { totals = []; showIntro(1); });
+    <p>${k('up')}${k('left')}${k('down')}${k('right')} đi · <kbd>←</kbd><kbd>→</kbd>/kéo chuột: camera · ${k('jump')} nhảy · ${k('dash')} lướt · ${k('interact')} nạp ánh sáng · ${k('pulse')} tỏa sáng · ${k('pause')} tạm dừng</p>
+    <div class="btns"><button id="b-start">Bắt đầu</button><button class="ghost" id="b-board">Bảng xếp hạng</button><button class="ghost" id="b-set">Cài đặt</button></div>`);
+  bind('b-start', () => { totals = []; seed = qs.has('seed') ? Number(qs.get('seed')) : (Date.now() & 0x7fffffff); showIntro(1); });
+  bind('b-board', () => showLeaderboard('menu'));
   bind('b-set', () => showSettings('menu'));
+}
+
+// ---------- Bảng xếp hạng (Ticket-04 mục 3) ----------
+function boardTable(entries, highlightName) {
+  if (!entries.length) return '<p style="opacity:0.8">Chưa có ai trong bảng. Hãy là người giữ đèn đầu tiên.</p>';
+  const rows = entries.map((e, i) => `<tr${e.name === highlightName ? ' style="font-weight:700"' : ''}><td>${i + 1}</td><td>${escapeHtml(e.name)}</td><td class="num">${e.score}</td><td>${e.nights_won}/3</td><td style="opacity:0.75">${e.achieved_at.replace('T', ' ').slice(0, 19)}</td></tr>`).join('');
+  return `<table class="board"><tr><th>#</th><th>Tên</th><th class="num">Điểm</th><th>Đêm</th><th>Lúc</th></tr>${rows}</table>`;
+}
+function escapeHtml(s) { return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function showLeaderboard(from = 'menu', highlightName = '') {
+  returnTo = from; phase = 'board';
+  card(`<h2>Bảng xếp hạng</h2><p style="font-size:var(--fs);opacity:0.8">Điểm = tổng điểm các Đêm đã thắng. Bằng điểm thì ai đạt trước đứng trên. Giữ top 10.</p>
+    ${boardTable(loadLeaderboard(), highlightName)}
+    <div class="btns"><button id="l-back">Quay lại</button></div>`);
+  bind('l-back', () => (from === 'dawn' ? showDawn() : from === 'result' ? showResultCard() : showMenu()));
+}
+function showNameInput({ score, nightsWon, onDone }) {
+  const from = phase;            // quay lại đúng màn trước đó (kết quả Đêm hoặc Bình Minh)
+  phase = 'name';
+  nameReturn = () => (from === 'dawn' ? showDawn() : showResultCard());
+  card(`<h2>Ghi tên vào bảng</h2>
+    <p>Điểm của ván: <b>${score}</b> · ${nightsWon}/3 Đêm.</p>
+    <label>Tên (3–12 ký tự A–Z a–z 0–9 _, được dùng chữ Việt có dấu) <input type="text" id="n-name" maxlength="12" value="${escapeHtml(lastName)}" autocomplete="off" spellcheck="false"><span></span></label>
+    <div class="err" id="n-err"></div>
+    <div class="btns"><button id="n-save">Lưu điểm</button><button class="ghost" id="n-skip">Bỏ qua</button></div>`);
+  const input = $('n-name');
+  input.focus(); input.select();
+  const submit = () => {
+    const r = normalizeName(input.value);
+    if (!r.ok) { $('n-err').textContent = r.error; input.focus(); return; }
+    const saved = onDone(r.name);
+    lastName = r.name;
+    if (saved && saved.saved === false) { $('n-err').textContent = 'Trình duyệt chặn lưu trữ cục bộ; điểm chỉ được giữ trong phiên này.'; return; }
+    showLeaderboard('result', r.name);
+  };
+  $('n-save').onclick = () => { sound.ensure(); submit(); };
+  input.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); submit(); } };
+  bind('n-skip', () => nameReturn());
 }
 function showIntro(n) {
   night = n; phase = 'intro';
@@ -212,23 +300,42 @@ function showIntro(n) {
   card(`<h2>${title}</h2><p class="quote">${quote}</p><div class="btns"><button id="b-go">Bắt đầu đêm</button></div>`);
   bind('b-go', () => startNight(n));
 }
-function showSettings(from) {
-  returnTo = from; phase = 'settings';
+function showSettings(from, message = '') {
+  returnTo = from; phase = 'settings'; listening = null;
   card(`<h2>Cài đặt</h2>
     <label>Âm lượng <input type="range" id="s-vol" min="0" max="100" value="${Math.round(settings.volume * 100)}"><span id="s-vol-v">${Math.round(settings.volume * 100)}</span></label>
     <label>Độ nhạy chuột <input type="range" id="s-sens" min="20" max="300" value="${Math.round(settings.sensitivity * 100)}"><span id="s-sens-v">${settings.sensitivity.toFixed(1)}</span></label>
-    <label>Bảng màu dễ phân biệt <input type="checkbox" id="s-cb" ${settings.cb ? 'checked' : ''}><span id="s-cb-v">${settings.cb ? 'Bật' : 'Tắt'}</span></label>
-    <label style="grid-template-columns:150px 1fr;">&nbsp;</label>
-    <p style="font-size:12px;opacity:0.7;margin:0 0 6px">Bật: viền Bóng Mực #00B3FF, cảnh báo trắng kèm ⚠; đèn tắt xẹp 20% và có vết rách.</p>
-    <div class="btns"><button id="b-back">Quay lại</button></div>`);
+    <label class="check">Bảng màu dễ phân biệt <input type="checkbox" id="s-cb" ${settings.cb ? 'checked' : ''}></label>
+    <label class="check">Giảm chuyển động (tắt rung camera, chớp màn hình) <input type="checkbox" id="s-motion" ${settings.reducedMotion ? 'checked' : ''}></label>
+    <label class="check">Chữ lớn (×1.25) <input type="checkbox" id="s-font" ${settings.fontScale === 1.25 ? 'checked' : ''}></label>
+    <p style="font-size:var(--fs);opacity:0.75;margin:4px 0 8px">Bảng màu dễ phân biệt: viền Bóng Mực #00B3FF, cảnh báo trắng kèm ⚠; đèn tắt xẹp 20% và có vết rách.</p>
+    <h2 style="margin-top:14px">Phím</h2>
+    <p style="font-size:var(--fs);opacity:0.75;margin:0 0 6px">Bấm nút rồi nhấn phím mới. Phím trùng sẽ bị từ chối và báo ngay. Camera luôn xoay bằng ←/→ hoặc kéo chuột.</p>
+    <table class="keys" id="keytable">${ACTIONS.map((a) => `<tr><td>${a.label}</td><td style="text-align:right"><button class="ghost" data-act="${a.id}">${keyLabel(settings.keys[a.id])}</button></td></tr>`).join('')}</table>
+    <div class="err" id="s-err">${escapeHtml(message)}</div>
+    <div class="btns"><button id="s-defaults">Khôi phục mặc định</button><button id="b-back">Quay lại</button></div>`);
   $('s-vol').oninput = (e) => { settings.volume = e.target.value / 100; sound.setVolume(settings.volume); $('s-vol-v').textContent = e.target.value; saveSettings(); };
   $('s-sens').oninput = (e) => { settings.sensitivity = e.target.value / 100; $('s-sens-v').textContent = settings.sensitivity.toFixed(1); saveSettings(); };
   $('s-cb').onchange = (e) => {
-    settings.cb = e.target.checked; $('s-cb-v').textContent = settings.cb ? 'Bật' : 'Tắt'; saveSettings();
+    settings.cb = e.target.checked; saveSettings();
     applyPalette();
     for (const v of views.shades.values()) v.rim.material.color.set(palette.rim);
     document.body.classList.toggle('cb', settings.cb);
   };
+  $('s-motion').onchange = (e) => { settings.reducedMotion = e.target.checked; saveSettings(); applyDisplay(); };
+  $('s-font').onchange = (e) => { settings.fontScale = e.target.checked ? 1.25 : 1; saveSettings(); applyDisplay(); };
+  for (const btn of $('keytable').querySelectorAll('button[data-act]')) {
+    btn.onclick = () => {
+      listening = btn.dataset.act;
+      for (const b of $('keytable').querySelectorAll('button[data-act]')) b.classList.toggle('conflict', b === btn);
+      btn.textContent = 'Nhấn phím…';
+      $('s-err').textContent = '';
+    };
+  }
+  bind('s-defaults', () => {
+    listening = null; Object.assign(settings, restoreDefaultKeys(settings)); saveSettings();
+    showSettings(returnTo, 'Đã khôi phục phím mặc định.');
+  });
   bind('b-back', () => (returnTo === 'paused' ? showPause() : showMenu()));
 }
 function showPause() {
@@ -244,7 +351,8 @@ function resume() { phase = 'playing'; hideCard(); }
 
 function startNight(n) {
   night = n; map = getMap(n);
-  game = createGame({ tuning: T, seed: Number(qs.get('seed')) || (Date.now() & 0x7fffffff), night: n });
+  if (n === 1) { totals = []; runSaved = false; }
+  game = createGame({ tuning: T, seed: seed || (Date.now() & 0x7fffffff), night: n });
   // `?lit=k` chỉ phía web: thắp sẵn k đèn và đặt fuel = 100 (Ticket-03: fuel chứ không phải deposited).
   // chỉ để chụp ảnh bằng chứng: ?lit=k thắp sẵn k đèn, ?fuel=N đặt dầu cho chúng (không ảnh hưởng headless)
   if (qs.has('lit')) for (const l of game.lanterns.slice(0, Number(qs.get('lit')))) { l.lit = true; l.everLit = true; l.fuel100 = Math.round((qs.has('fuel') ? Number(qs.get('fuel')) : T.fuel_max) * 60); }
@@ -252,22 +360,24 @@ function startNight(n) {
   dyn.clear();
   views = { lanterns: new Map(game.lanterns.map((l) => [l.id, makeLantern(l)])), motes: new Map(), shades: new Map(), drifters: new Map(), charms: new Map(game.charms.map((c) => [c.id, makeCharm(c)])) };
   camYaw = 0; pulseAnim = 0; lastCountdown = -1; windWarned = false;
-  bot = qs.has('bench') || qs.has('demo') ? createBot() : null;
+  bot = autoNight ? createBot() : null;
   phase = 'playing'; hideCard(); $('hudroot').classList.remove('hidden');
   $('nightname').textContent = INTRO[n][0];
   sound.ensure(); sound.startMusic();
 }
 function showResult() {
   const won = game.state === 'won';
-  phase = 'result';
   sound.sfx(won ? 'win' : 'lose');
+  if (won) totals[night - 1] = game.score;
+  resultState = { won };
+  showResultCard();
+}
+let resultState = { won: false };
+function showResultCard() {
+  const won = resultState.won;
+  phase = 'result';
   const st = game.stats, S = T.score;
-  const need = Math.ceil((T.win_ratio ?? 0.6) * game.lanterns.length);
-  const reason = {
-    dawn_survived: `Bình minh đã về với ${litCount(game)}/${game.lanterns.length} đèn còn sáng (cần ${need}).`,
-    dawn: `Chỉ còn ${litCount(game)}/${game.lanterns.length} đèn sáng khi bình minh tới (cần ${need}).`,
-    no_flames: 'Ngọn lửa của Mây đã tắt.',
-  }[game.reason];
+  const total = totals.reduce((a, b) => a + (b || 0), 0);
   const rows = [
     ['Đom đóm châm dầu', `${st.deposited} × ${S.per_mote}`],
     ['Đèn thắp lần đầu', `${st.lanterns} × ${S.per_lantern}`],
@@ -276,16 +386,45 @@ function showResult() {
   ];
   if (won) rows.push(['Thưởng bình minh (đèn + dầu)', `+${st.bonusLanterns}`], ['Thưởng Ngọn Lửa', `+${st.bonusFlames}`]);
   rows.push(['<b>Điểm Đêm này</b>', `<b>${game.score}</b>`]);
-  if (won) totals[night - 1] = game.score;
-  const total = totals.reduce((a, b) => a + (b || 0), 0);
-  card(`<h2>${won ? INTRO[night][0] + ' đã sáng!' : 'Đêm chưa trọn…'}</h2><p>${reason}</p>
+  card(`<h2>${won ? INTRO[night][0] + ' đã sáng!' : 'Đêm chưa trọn…'}</h2><p>${resultReason()}</p>
     <table>${rows.map(([a, b]) => `<tr><td>${a}</td><td>${b}</td></tr>`).join('')}<tr><td>Tổng điểm các Đêm đã thắng</td><td>${total}</td></tr></table>
     <div class="btns">${won ? (night < 3 ? '<button id="r-next">Đêm kế tiếp</button>' : '<button id="r-dawn">Đón bình minh</button>') : '<button id="r-retry">Chơi lại Đêm</button>'}
+    <button id="r-save">${runSaved ? 'Xem bảng xếp hạng' : 'Lưu điểm'}</button>
     <button class="ghost" id="r-menu">Về menu</button></div>`);
   bind('r-next', () => showIntro(night + 1));
   bind('r-dawn', showDawn);
   bind('r-retry', () => startNight(night));
+  bind('r-save', () => {
+    if (runSaved) return showLeaderboard('result', lastName);
+    return saveRunAndShow();
+  });
   bind('r-menu', () => { sound.stopMusic(); showMenu(); });
+}
+function resultReason() {
+  const need = Math.ceil((T.win_ratio ?? 0.6) * game.lanterns.length);
+  return {
+    dawn_survived: `Bình minh đã về với ${litCount(game)}/${game.lanterns.length} đèn còn sáng (cần ${need}).`,
+    dawn: `Chỉ còn ${litCount(game)}/${game.lanterns.length} đèn sáng khi bình minh tới (cần ${need}).`,
+    no_flames: 'Ngọn lửa của Mây đã tắt.',
+  }[game.reason] ?? '';
+}
+/** Lưu ván hiện tại (thắng hoặc thua) và mở bảng xếp hạng sau khi nhập tên. */
+function saveRunAndShow() {
+  // Bản chơi thật không có `totals` rỗng khi kết thúc Đêm 1 (thắng thì ít nhất một Đêm có điểm); emptyTotals
+  // chỉ dùng khi kiểm chứng UI có tổng cho trước, nên dùng luôn tổng đó.
+  const t = totals.length && totals.some((x) => x > 0) ? totals : UI_RESULT_TOTALS;
+  const { fresh, won, score } = newRunEntries({ totals: t, seed });
+  if (t !== totals) totals = [...t];
+  // Đã lưu ván này rồi (ví dụ bấm "Lưu điểm" lần hai): mở bảng luôn, không hỏi tên lại.
+  if (!fresh.length) return showLeaderboard(phase === 'dawn' ? 'dawn' : 'result', lastName);
+  showNameInput({
+    score, nightsWon: won,
+    onDone: (name) => {
+      const r = commitRun(fresh, name);
+      if (r.ok) runSaved = true;
+      return r;
+    },
+  });
 }
 function showDawn() {
   phase = 'dawn'; sound.stopMusic(); $('hudroot').classList.add('hidden');
@@ -293,30 +432,46 @@ function showDawn() {
   const total = totals.reduce((a, b) => a + (b || 0), 0);
   card(`<h1>Bình Minh</h1><p class="quote">Ông Đăng: "Ba hòn đảo đã sáng. Cảm ơn con, người giữ đèn nhỏ."</p>
     <table>${totals.map((s, i) => `<tr><td>${INTRO[i + 1][0]}</td><td>${s}</td></tr>`).join('')}<tr><td><b>Tổng điểm</b></td><td><b>${total}</b></td></tr></table>
-    <div class="btns"><button id="d-menu">Về menu</button></div>`);
+    <div class="btns"><button id="d-board">Lưu điểm & bảng xếp hạng</button><button class="ghost" id="d-menu">Về menu</button></div>`);
+  bind('d-board', () => (runSaved ? showLeaderboard('dawn', lastName) : saveRunAndShow()));
   bind('d-menu', () => { scene.background.set(C.night); scene.fog.color.set(C.fog); showMenu(); });
 }
 
 // ---------- Điều khiển ----------
 const keys = new Set();
 let camYaw = 0, dragX = null;
+let listening = null;   // hành động đang chờ gán phím trong Cài đặt
 addEventListener('keydown', (e) => {
-  keys.add(e.code);
-  if ((e.code === 'Escape' || e.code === 'KeyP') && (phase === 'playing' || phase === 'paused')) {
-    if (phase === 'playing') showPause(); else resume();
+  // Gán phím (Ticket-04 mục 4): phím vừa nhấn trở thành phím của hành động đang chọn.
+  if (listening) {
+    e.preventDefault();
+    const action = listening;
+    const r = assignKey(settings, action, keyCodeFromEvent(e));
+    if (r.error) { $('s-err').textContent = r.error; return; }
+    listening = null;
+    Object.assign(settings, r.settings);
+    saveSettings();
+    showSettings(returnTo, `Đã gán ${keyLabel(e.code)} cho "${ACTIONS.find((a) => a.id === action).label}".`);
+    return;
   }
-  if (e.code === 'Space' || e.code.startsWith('Arrow')) e.preventDefault();
+  keys.add(e.code);
+  if ((phase === 'playing' || phase === 'paused') && held('pause') && !wasPause) {
+    if (phase === 'playing') showPause(); else resume();
+    wasPause = true;
+  }
+  if (held('jump') || e.code.startsWith('Arrow') || e.code === 'Space') e.preventDefault();
 });
-addEventListener('keyup', (e) => keys.delete(e.code));
+let wasPause = false;
+addEventListener('keyup', (e) => { keys.delete(e.code); if (!held('pause')) wasPause = false; });
 addEventListener('pointerdown', (e) => { if (phase === 'playing') dragX = e.clientX; });
 addEventListener('pointerup', () => { dragX = null; });
 addEventListener('pointermove', (e) => { if (dragX === null) return; camYaw -= (e.clientX - dragX) * 0.3 * settings.sensitivity; dragX = e.clientX; });
 function readInput() {
   if (keys.has('ArrowLeft')) camYaw += 110 * DT * settings.sensitivity;
   if (keys.has('ArrowRight')) camYaw -= 110 * DT * settings.sensitivity;
-  const x = (keys.has('KeyA') ? 1 : 0) - (keys.has('KeyD') ? 1 : 0); // θ=0 nhìn +Z thì "phải màn hình" là −X
-  const z = (keys.has('KeyW') || keys.has('ArrowUp') ? 1 : 0) - (keys.has('KeyS') || keys.has('ArrowDown') ? 1 : 0);
-  return { move: [x, z], cam_yaw_deg: camYaw, jump: keys.has('Space'), interact: keys.has('KeyE'), pulse: keys.has('KeyQ'), dash: keys.has('ShiftLeft') || keys.has('ShiftRight'), pause: false };
+  const x = (held('left') ? 1 : 0) - (held('right') ? 1 : 0); // θ=0 nhìn +Z thì "phải màn hình" là −X
+  const z = (held('up') ? 1 : 0) - (held('down') ? 1 : 0);
+  return { move: [x, z], cam_yaw_deg: camYaw, jump: held('jump'), interact: held('interact'), pulse: held('pulse'), dash: held('dash'), pause: false };
 }
 
 // ---------- Vòng lặp ----------
@@ -352,6 +507,7 @@ function onEvent(e) {
   const names = { mote_picked: 'pick', deposit: 'deposit', lantern_lit: 'lit', pulse: 'pulse', player_hit: 'hit', shade_spawned: 'shade', drifter_steal: 'steal', charm_picked: 'charm' };
   if (names[e.name]) sound.sfx(names[e.name]);
   if (e.name === 'pulse') pulseAnim = 1;
+  if (e.name === 'player_hit') cameraShake = 1;   // rung camera; bỏ qua khi bật "giảm chuyển động"
 }
 
 const tmpV = new THREE.Vector3();
@@ -379,6 +535,7 @@ function render(t) {
     v.head.material.emissive.set(C.lit);
     v.head.material.emissiveIntensity = l.lit ? (low && blink ? 0.8 : 2.2) : 0;
     v.light.intensity = l.lit ? (low && blink ? 10 : 45 + 6 * Math.sin(t * 3 + l.pos[0])) : 0;
+    v.chop.visible = low;
     v.ring.material.opacity = safe ? 0.35 : 0;
     // Ticket-03 mục 6: đèn tắt xẹp 20% + giấy rách (vết rách luôn hiện, nhưng to hơn khi tắt)
     const scale = l.lit ? 1 : 0.8;
@@ -442,9 +599,11 @@ function render(t) {
     });
   }
 
+  if (cameraShake > 0) cameraShake = Math.max(0, cameraShake - 1 / 24);
   const th = (camYaw * Math.PI) / 180;
   const fx = Math.sin(th), fz = Math.cos(th);
-  camera.position.set(p.pos[0] - fx * 9, p.pos[1] + 5.5, p.pos[2] - fz * 9);
+  const sh = shakeOffset();
+  camera.position.set(p.pos[0] - fx * 9 + sh, p.pos[1] + 5.5 + sh * 0.5, p.pos[2] - fz * 9);
   camera.lookAt(p.pos[0] + fx * 2, p.pos[1] + 1.2, p.pos[2] + fz * 2);
   renderer.render(scene, camera);
   updateHud();
@@ -459,6 +618,62 @@ function sync(mapViews, items, make, update) {
   }
   for (const [id, v] of mapViews) if (!alive.has(id)) { dyn.remove(v.g || v); mapViews.delete(id); }
 }
+
+// ---------- Phụ đề / chỉ báo hình ảnh (Ticket-04 mục 4) ----------
+// Bóng Mực xuất hiện (kèm mũi tên ở mép), gió sắp thổi, 10 giây cuối, đèn có fuel < 30.
+const MAX_EDGE_ARROWS = 4;
+const edgeArrows = Array.from({ length: MAX_EDGE_ARROWS }, () => {
+  const a = document.createElement('div');
+  a.className = 'edgearrow hud';
+  a.style.position = 'fixed';
+  $('hudroot').append(a);
+  return a;
+});
+function updateSubs() {
+  const p = game.player;
+  const subs = [];
+  const spawning = game.shades.filter((s) => s.state === 'spawning').length;
+  const chasing = game.shades.filter((s) => s.state === 'chase').length;
+  const draining = game.shades.filter((s) => s.state === 'drain').length;
+  const parts = [];
+  if (spawning) parts.push(`${spawning} sắp hiện`);
+  if (chasing) parts.push(`${chasing}:${'\u2009'}đuổi theo`);
+  if (draining) parts.push(`${draining} hút dầu đèn`);
+  if (parts.length) subs.push(['shade', `Bóng Mực: ${parts.join(' · ')} · tổng ${game.shades.length}`]);
+  const st = game.steps;
+  const warn = game.windEnabled && !game.wind.active && st % STD.windEvery >= STD.windEvery - 120;
+  if (game.wind.active) subs.push(['', 'Gió đang thổi mạnh']);
+  else if (warn) subs.push(['', 'Gió sắp nổi (2 giây)']);
+  const tl = Math.max(0, timeLeft(game));
+  if (tl <= 10 && phase === 'playing') subs.push(['dawn', `Bình minh sau ${Math.ceil(tl)} giây`]);
+  const low = game.lanterns.filter((l) => isLowFuel(game, l));
+  if (low.length) subs.push(['fuel', `Đèn yếu (dầu < ${T.low_fuel_threshold}): ${low.map((l) => `${l.id} ${Math.floor(fuelOf(l))}`).join(', ')}`]);
+  $('subs').innerHTML = subs.map(([cls, text]) => `<div class="${cls}">${escapeHtml(text)}</div>`).join('');
+
+  // Mũi tên ở mép màn hình chỉ những Bóng Mực gần nhất đang ngoài khung hình.
+  const outside = game.shades
+    .map((sh) => ({ sh, d: Math.hypot(sh.pos[0] - p.pos[0], sh.pos[2] - p.pos[2]) }))
+    .map((x) => { tmpV.set(x.sh.pos[0], x.sh.pos[1], x.sh.pos[2]).project(camera); return { ...x, v: { x: tmpV.x, y: tmpV.y, z: tmpV.z } }; })
+    .filter((x) => x.v.z > 1 || Math.abs(x.v.x) > 1 || Math.abs(x.v.y) > 1)
+    .sort((a, b) => a.d - b.d)
+    .slice(0, MAX_EDGE_ARROWS);
+  edgeArrows.forEach((el, i) => {
+    const x = outside[i];
+    if (!x) { el.classList.add('hidden'); return; }
+    let { x: vx, y: vy } = x.v;
+    if (x.v.z > 1) { vx = -vx; vy = -vy; }
+    const ang = Math.atan2(vy, vx);
+    const k = 0.9 / Math.max(Math.abs(Math.cos(ang)), Math.abs(Math.sin(ang)));
+    const sx = (Math.cos(ang) * k * 0.5 + 0.5) * innerWidth, sy = (-Math.sin(ang) * k * 0.5 + 0.5) * innerHeight;
+    el.style.left = `${sx - 13}px`; el.style.top = `${sy - 13}px`;
+    el.style.transform = `rotate(${Math.PI / 2 - ang}rad)`;
+    el.classList.remove('hidden');
+  });
+}
+
+// Rung camera (Ticket-04 mục 4: "giảm chuyển động" tắt rung). cameraShake > 0 trong 0.35 s sau mỗi cú chạm.
+let cameraShake = 0;
+const shakeOffset = () => (settings.reducedMotion || cameraShake <= 0 ? 0 : Math.sin(performance.now() / 18) * 0.18 * cameraShake);
 
 function updateHud() {
   const p = game.player;
@@ -490,11 +705,13 @@ function updateHud() {
   if (near) {
     const l = near.l;
     const n = Math.ceil((T.fuel_max - fuelOf(l)) / T.fuel_per_mote - 1e-9);
+    const keyE = keyLabel(settings.keys.interact);
     const label = !l.lit
-      ? (l.everLit ? `E — Thắp lại (cần ${T.relight_cost})` : `E — Thắp đèn (cần ${T.lantern_cost})`)
-      : `E — Châm dầu (${Math.floor(fuelOf(l))}/${T.fuel_max}` + (n > 0 ? `, cần ${n}` : '') + ')';
+      ? (l.everLit ? `${keyE} — Thắp lại (cần ${T.relight_cost})` : `${keyE} — Thắp đèn (cần ${T.lantern_cost})`)
+      : `${keyE} — Châm dầu (${Math.floor(fuelOf(l))}/${T.fuel_max}` + (n > 0 ? `, cần ${n}` : '') + ')';
     $('prompt').textContent = `${label}${p.carried >= (l.lit ? n : (l.everLit ? T.relight_cost : T.lantern_cost)) ? '' : ' — chưa đủ đom đóm'}`;
   }
+  updateSubs();
   // mũi tên chỉ đèn chưa sáng gần nhất khi ở ngoài màn hình
   const unlit = game.lanterns.filter((l) => !l.lit);
   const arrow = $('arrow');
@@ -517,7 +734,28 @@ function updateHud() {
 }
 
 // ---------- Khởi động ----------
+// Seed phải có TRƯỚC startNight: game tạo với seed 0 nếu không, còn bảng xếp hạng mới ghi seed từ URL.
+if (qs.has('seed')) seed = Number(qs.get('seed')) || 0;
 requestAnimationFrame(frame);
-if (qs.has('bench') || qs.has('autostart') || qs.has('demo')) startNight(Number(qs.get('bench') || qs.get('autostart') || qs.get('demo')) || 1);
+if (autoNight) startNight(Number(qs.get('bench') || qs.get('autostart') || qs.get('demo')) || 1);
 else showMenu();
+// Hook cho kiểm chứng tự động bằng CDP (không ảnh hưởng luật chơi).
 window.__game = () => game;
+window.__ddl = {
+  phase: () => phase,
+  // Vào màn kết quả với tổng điểm cho trước (chỉ dùng cho ảnh/kiểm chứng UI, không đổi luật hay điểm thật).
+  demoResult: (totalsIn, won = true) => {
+    if (!game) startNight(1);
+    if (qs.has('seed')) seed = Number(qs.get('seed')) || 0;
+    totals = [...totalsIn]; UI_RESULT_TOTALS = [...totalsIn]; runSaved = false;
+    game.stats.bonusLanterns = 0; game.stats.bonusFlames = 0;
+    game.state = won ? 'won' : 'lost';
+    game.reason = won ? 'dawn_survived' : 'no_flames';
+    phase = 'playing';
+    showResult();
+    return phase;
+  },
+  saveRun: () => { saveRunAndShow(); return phase; },
+  resetBoard: () => resetLeaderboard(),
+  showLeaderboard: () => showLeaderboard('menu'),
+};
