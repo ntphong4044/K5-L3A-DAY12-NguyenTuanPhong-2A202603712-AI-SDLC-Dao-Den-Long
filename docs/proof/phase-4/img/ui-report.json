@@ -1,0 +1,32 @@
+{
+  "menuFontSize": "18px",
+  "conflict": "Phím E đã dùng cho \"Tương tác (thắp / châm dầu)\".",
+  "stillListening": "Nhấn phím…",
+  "largeFontCss": "22.5px",
+  "saved": {
+    "volume": 0.6,
+    "sensitivity": 1,
+    "reducedMotion": true,
+    "fontScale": 1.25,
+    "keys": {
+      "up": "KeyW",
+      "down": "KeyS",
+      "left": "KeyA",
+      "right": "KeyD",
+      "jump": "Space",
+      "dash": "ShiftLeft",
+      "interact": "KeyE",
+      "pulse": "KeyQ",
+      "pause": "Escape"
+    }
+  },
+  "subs": [
+    "Bóng Mực: 2 sắp hiện · tổng 2",
+    "Đèn yếu (dầu < 30): L1 14, L2 14, L3 14"
+  ],
+  "edgeArrows": 1,
+  "timerFont": "36px",
+  "nameErr": "Tên cần ít nhất 3 ký tự.",
+  "board": "[{\"name\":\"Mây_K5\",\"score\":1500,\"nights_won\":1,\"achieved_at\":\"2026-11-20T20:09:07+07:00\",\"seed\":7}]",
+  "leaderboardPage": "[{\"name\":\"Mây_K5\",\"score\":1500,\"nights_won\":1,\"achieved_at\":\"2026-11-20T20:09:07+07:00\",\"seed\":7}]"
+}
