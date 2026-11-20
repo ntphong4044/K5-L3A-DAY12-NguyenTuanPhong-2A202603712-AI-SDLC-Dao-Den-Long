@@ -4,6 +4,18 @@ Mọi thay đổi đáng chú ý của dự án. Định dạng dựa trên [Kee
 
 Lịch sử phát hành: **v1.0.0** gộp 4 phase của lab (Phase 1 → Phase 4).
 
+## [v1.0.0] — bổ sung trước hạn nộp — 2026-11-21
+
+### Sửa
+
+- CI đỏ ở test `AC-SOAK4`: test gọi `node src/soak.js` trần, thiếu cờ `--jitless --max-semi-space-size=1` của `soak_cmd`, nên RSS ×1.25 vượt ngưỡng ×1.2 và lệnh thoát 1. Test giờ chạy đúng `soak_cmd` đọc từ `game.contract.json` (ngưỡng giữ nguyên ×1.2).
+- Số bench trong `docs/proof/phase-4/release-notes.md` và `docs/proof/phase-4/README.md` khớp lại với `bench.json` (p1 129.2, load 1198.5 ms, p95 5.9 ms, 8511 khung).
+
+### Thêm mới (chỉ `web/`, không đổi luật hay output headless)
+
+- Menu chính: **Chọn Đêm** 1 / 2 / 3.
+- HUD: **bảng đèn** góc phải (thanh dầu + số dầu từng đèn, ⚠ khi < 30) và số đom đóm còn trên đảo.
+
 ## [v1.0.0] — Phase 4 — 2026-11-20 — Ticket-04 "Bình minh: phát hành v1.0.0" (Contract v1.3)
 
 ### Không phá vỡ tương thích

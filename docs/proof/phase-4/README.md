@@ -8,7 +8,7 @@ Tiêu chí nghiệm thu và giả định: [docs/notes/phase-4.md](../../notes/p
 | Yêu cầu Ticket-04 | Bằng chứng | Kết quả |
 |---|---|---|
 | 1. Cảnh benchmark: 1280×720, không toàn màn hình, tắt vsync, Đêm 1 đầy đủ ánh sáng, 200 Bóng Mực wander + 100 đom đóm + L1–L3 fuel 100, tắt sát thương/nhặt/hao dầu/kết thúc, camera (30,15,0) 15 s/vòng, bỏ 3 s khởi động | [`../../bench.json`](../../../bench.json); code `src/core/bench.js`, `web/bench.js`; test AC-BENCH1/BENCH2/BENCH3/BENCH5/BENCH8 | `shades: 200`, `motes: 100`, `window: [1280,720]`, `vsync_off: true` |
-| 1. Ngưỡng đạt avg ≥ 60, p1 ≥ 30, load ≤ 10 s | [`../../bench.json`](../../../bench.json) | **avg 283.7 · p1 129.2 · load 1198.5.4 ms** · p95 9.9 ms · 4.984 khung |
+| 1. Ngưỡng đạt avg ≥ 60, p1 ≥ 30, load ≤ 10 s | [`../../bench.json`](../../../bench.json) | **avg 283.7 · p1 129.2 · load 1198.5 ms** · p95 5.9 ms · 8511 khung |
 | 1. Công thức `avg_fps`, `p1_low_fps` (k = max(1, ceil(0.01N))), `frame_ms_p95` | test AC-BENCH6 | Khớp số tính tay |
 | 1. `peak_mem_mb` là RSS, hoặc null kèm giải thích nếu là bản web | [`../../bench.json`](../../../bench.json), README mục Bench | Bản web ghi **heap JS** (`performance.memory`), chế độ headless ghi RSS thật — có giải thích |
 | 2. Soak 10 Đêm, seed 7+i, input ngẫu nhiên theo seed, cùng một tiến trình | [`../../soak.json`](../../../soak.json); test AC-SOAK1/2/3/4 | 10 Đêm, 0 crash, `lost`×10, 25.728 tick |

@@ -17,6 +17,15 @@ import { ROOT } from './lib/scenarios.js';
 const T = JSON.parse(fs.readFileSync(new URL('../game.contract.json', import.meta.url))).tuning;
 const IDLE = { move: [0, 0], cam_yaw_deg: 0, jump: false, interact: false, pulse: false, dash: false, pause: false };
 const runCli = (file, args) => spawnSync(process.execPath, [path.join(ROOT, file), ...args], { encoding: 'utf8', cwd: ROOT });
+// Chạy ĐÚNG lệnh trong contract (vd. soak_cmd = "node --jitless --max-semi-space-size=1 src/soak.js"): giữ cờ node,
+// vì ngưỡng RSS ×1.2 của Ticket-04 đo với các cờ này. Gọi `node src/soak.js` trần làm RSS ×1.25 -> exit 1 (CI đỏ).
+const CONTRACT = JSON.parse(fs.readFileSync(new URL('../game.contract.json', import.meta.url)));
+const runContractCmd = (key, args) => {
+  const [bin, ...rest] = CONTRACT[key].split(/\s+/);
+  assert.equal(bin, 'node', `${key} phải bắt đầu bằng node`);
+  const script = rest.pop();
+  return spawnSync(process.execPath, [...rest, path.join(ROOT, script), ...args], { encoding: 'utf8', cwd: ROOT });
+};
 
 test('AC-BENCH1 cảnh chuẩn: 200 Bóng Mực wander, 100 đom đóm, L1–L3 sáng fuel 100, không diễn ra kết thúc Đêm', () => {
   const g = createBenchGame({ tuning: T, seed: 42 });
@@ -147,10 +156,10 @@ test('AC-SOAK4 lệnh soak: ghi đúng trường, tất định với cùng seed
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ddl-soak-'));
   const a = path.join(dir, 'a.json');
   const b = path.join(dir, 'b.json');
-  const r1 = runCli('src/soak.js', ['--seed', '7', '--nights', '6', '--out', a]);
-  const r2 = runCli('src/soak.js', ['--seed', '7', '--nights', '6', '--out', b]);
-  assert.equal(r1.status, 0, r1.stderr);
-  assert.equal(r2.status, 0, r2.stderr);
+  const r1 = runContractCmd('soak_cmd', ['--seed', '7', '--nights', '6', '--out', a]);
+  const r2 = runContractCmd('soak_cmd', ['--seed', '7', '--nights', '6', '--out', b]);
+  assert.equal(r1.status, 0, r1.stderr + r1.stdout.split('\n').find((x) => x.startsWith('crashes=')));
+  assert.equal(r2.status, 0, r2.stderr + r2.stdout.split('\n').find((x) => x.startsWith('crashes=')));
   const ja = JSON.parse(fs.readFileSync(a, 'utf8'));
   const jb = JSON.parse(fs.readFileSync(b, 'utf8'));
   for (const k of ['nights', 'crashes', 'results', 'mem_start_mb', 'mem_end_mb', 'heap_start_mb', 'heap_end_mb', 'duration_s']) assert.ok(k in ja, k);

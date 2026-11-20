@@ -46,6 +46,8 @@ docker build -t dao-den-long . && docker run --rm -p 5173:5173 dao-den-long
 | `Q` | Tỏa Sáng: làm choáng và đẩy lùi Bóng Mực trong 5 m (tốn 3 đom đóm, hồi 3 s) |
 | `Esc` / `P` | Tạm dừng: Tiếp tục / Chơi lại Đêm / Cài đặt / Về menu |
 
+Menu chính có **Chọn Đêm** (Đêm 1 / 2 / 3) để vào thẳng một Đêm; chuỗi Đêm tiếp tục bình thường từ Đêm đã chọn.
+
 Cài đặt (menu chính hoặc màn tạm dừng): gán lại phím cho cả 9 hành động (phát hiện trùng phím và báo ngay, có nút **Khôi phục mặc định**), bảng màu dễ phân biệt, **giảm chuyển động** (tắt rung camera và chớp màn hình), **chữ lớn ×1.25**. Mọi thay đổi được lưu giữa các lần mở.
 
 ## Ba Đêm
@@ -161,6 +163,7 @@ CLAUDE.md, .claude/    harness AI (hướng dẫn, hook Stop, skill verify-phase
 
 Chỉ nằm ở phía hiển thị `web/`; không đổi luật hay output headless (cảnh benchmark tắt hiệu ứng sáng tạo, đo trên cùng cảnh chuẩn).
 
+- **Bảng đèn trên HUD** (góc phải): từng đèn với thanh dầu và số dầu (đỏ + ⚠ khi < 30, "tắt" khi đã tắt), kèm số đom đóm còn trên đảo.
 - **Đèn lồng trên nón lá của Mây** sáng mạnh dần theo số đom đóm đang mang.
 - **Vòng sáng an toàn** màu cam trên mặt đất quanh đèn đã thắp.
 - **Đom đóm rơi nhấp nháy** trong 2 giây cuối trước khi tan biến; **biểu tượng ⚠** nổi trên đèn sắp cạn dầu.

@@ -13,7 +13,7 @@ Hoặc từ repo: `npm install && npm start`.
 ## Có gì trong bản này
 
 - **Ba Đêm** với luật đầy đủ: nhiên liệu đèn hao dần, Bóng Mực hút dầu, Gió Lạc, Bùa Gió, lướt, rơi — đúng Test Contract **v1.3**.
-- **Benchmark**: cảnh chuẩn 1280×720, tắt vsync, 200 Bóng Mực + 100 đom đóm, camera 15 s/vòng. Tự đo: **283.7 FPS trung bình, p1 53.5 FPS, load 680 ms** (ngưỡng 60 / 30 / 10.000).
+- **Benchmark**: cảnh chuẩn 1280×720, tắt vsync, 200 Bóng Mực + 100 đom đóm, camera 15 s/vòng. Tự đo: **283.7 FPS trung bình, p1 129.2 FPS, load 1198.5 ms** (ngưỡng 60 / 30 / 10.000).
 - **Soak**: 10 Đêm liên tiếp, **0 crash**, bộ nhớ 38 → 39 MB (×1.026); thêm mẫu 500 Đêm không rò rỉ.
 - **Bảng xếp hạng** top 10 lưu trên máy (chữ Việt có dấu), màn hình từ menu chính, xuất JSON.
 - **Dễ tiếp cận**: đổi mọi phím (báo trùng, khôi phục mặc định), phụ đề và mũi tên chỉ hướng, giảm chuyển động, chữ 18 px / chữ lớn ×1.25.

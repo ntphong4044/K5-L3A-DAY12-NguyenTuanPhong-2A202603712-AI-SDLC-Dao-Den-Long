@@ -20,6 +20,18 @@
   body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after { animation: none !important; transition: none !important; }
   #topright { top: 12px; right: 14px; text-align: right; line-height: 1.5; }
   #topright b { color: var(--gold); font-size: calc(var(--fs-hud) + 2px); }
+  /* Bảng đèn: id · thanh dầu · số dầu (⚠ khi < 30) + số đom đóm trên đảo */
+  #lanterns { top: 92px; right: 14px; display: grid; gap: 3px; background: #0007; padding: 6px 10px; border-radius: 8px; font-size: 18px; font-variant-numeric: tabular-nums; }
+  body.large #lanterns { font-size: 22.5px; }
+  #lanterns > div:not(.motes) { display: grid; grid-template-columns: 2.2em 90px 3.6em; align-items: center; gap: 8px; }
+  #lanterns .lfuel { height: 10px; border-radius: 5px; background: #ffffff22; overflow: hidden; }
+  #lanterns .lfuel i { display: block; height: 100%; background: var(--lit); }
+  #lanterns .lval { text-align: right; }
+  #lanterns .off { opacity: 0.55; }
+  #lanterns .low .lval { color: var(--danger); }
+  #lanterns .low .lfuel i { background: var(--danger); }
+  #lanterns .motes { margin-top: 3px; opacity: 0.9; }
+  #lanterns .motes b { color: var(--gold); }
   #nightname { top: 50px; left: 50%; transform: translateX(-50%); font-size: var(--fs-hud); opacity: 0.85; }
   #bar { bottom: 14px; left: 50%; transform: translateX(-50%); display: flex; gap: 5px; }
   #carry { bottom: 44px; left: 50%; transform: translateX(-50%); font-size: var(--fs-hud); opacity: 0.9; }
@@ -80,6 +92,7 @@
   <div id="timer" class="hud"></div>
   <div id="nightname" class="hud"></div>
   <div id="topright" class="hud"></div>
+  <div id="lanterns" class="hud"></div>
   <div id="subs" class="hud"></div>
   <div id="windwarn" class="hud hidden">🍃 Gió sắp nổi…</div>
   <div id="prompt" class="hud hidden"></div>

@@ -251,8 +251,13 @@ function showMenu() {
   const k = (a) => `<kbd>${keyLabel(settings.keys[a])}</kbd>`;
   card(`<h1>Đảo Đèn Lồng</h1><p>Ba đêm, ba hòn đảo. Giúp Mây thắp lại Đèn Lồng Lớn trước bình minh.</p>
     <p>${k('up')}${k('left')}${k('down')}${k('right')} đi · <kbd>←</kbd><kbd>→</kbd>/kéo chuột: camera · ${k('jump')} nhảy · ${k('dash')} lướt · ${k('interact')} nạp ánh sáng · ${k('pulse')} tỏa sáng · ${k('pause')} tạm dừng</p>
-    <div class="btns"><button id="b-start">Bắt đầu</button><button class="ghost" id="b-board">Bảng xếp hạng</button><button class="ghost" id="b-set">Cài đặt</button></div>`);
-  bind('b-start', () => { totals = []; seed = qs.has('seed') ? Number(qs.get('seed')) : (Date.now() & 0x7fffffff); showIntro(1); });
+    <div class="btns"><button id="b-start">Bắt đầu</button><button class="ghost" id="b-board">Bảng xếp hạng</button><button class="ghost" id="b-set">Cài đặt</button></div>
+    <p style="margin-bottom:4px;opacity:0.85">Chọn Đêm:</p>
+    <div class="btns">${[1, 2, 3].map((n) => `<button class="ghost" id="b-night${n}">${INTRO[n][0]}</button>`).join('')}</div>`);
+  // Chọn Đêm chỉ phía web (không đổi luật/headless): vào thẳng Đêm n, chuỗi Đêm tiếp tục như bình thường từ đó.
+  const newRun = (n) => { totals = []; runSaved = false; seed = qs.has('seed') ? Number(qs.get('seed')) : (Date.now() & 0x7fffffff); showIntro(n); };
+  bind('b-start', () => newRun(1));
+  for (const n of [1, 2, 3]) bind(`b-night${n}`, () => newRun(n));
   bind('b-board', () => showLeaderboard('menu'));
   bind('b-set', () => showSettings('menu'));
 }
@@ -690,6 +695,14 @@ function updateHud() {
   if (bar.children.length !== cap) bar.innerHTML = '<i></i>'.repeat(cap);
   [...bar.children].forEach((c, i) => c.classList.toggle('on', i < p.carried));
   $('carry').textContent = `${p.carried} / ${cap}`;
+  // Bảng đèn (chỉ hiển thị): từng đèn sáng/tắt, dầu hiện tại, ⚠ khi dầu < ngưỡng; kèm số đom đóm trên đảo.
+  $('lanterns').innerHTML = game.lanterns.map((l) => {
+    const f = fuelOf(l), low = isLowFuel(game, l);
+    const pct = Math.max(0, Math.min(100, (100 * f) / T.fuel_max));
+    const cls = !l.lit ? 'off' : low ? 'low' : 'on';
+    const val = l.lit ? `${Math.floor(f)}` : (l.everLit ? 'tắt' : '—');
+    return `<div class="${cls}"><span class="lid">${l.id}</span><span class="lfuel"><i style="width:${l.lit ? pct : 0}%"></i></span><span class="lval">${low ? '⚠ ' : ''}${val}</span></div>`;
+  }).join('') + `<div class="motes">Đom đóm trên đảo: <b>${game.motes.length}</b></div>`;
   const cd = (el, left, total, ok) => { el.style.setProperty('--p', `${(100 * left) / total}%`); el.classList.toggle('ready', left === 0 && ok); };
   cd($('cd-dash'), p.charm > 0 ? 0 : p.dashCd, Math.round(T.dash_cooldown_s * 60), true);
   cd($('cd-pulse'), p.pulseCd, Math.round(T.pulse_cooldown_s * 60), p.carried >= T.pulse_cost);
