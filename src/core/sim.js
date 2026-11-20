@@ -622,6 +622,8 @@ export function step(s, input) {
 
   // ---- 11. Thắng / thua (Ticket-03 mục 3): hết Ngọn Lửa luôn thua trước; hết giờ mới xét ngưỡng đèn.
   //         Không còn thắng sớm khi thắp đủ đèn. Mọi cập nhật của tick đã xong (kể cả tick bình minh).
+  //         Cảnh benchmark (Phase 4) tắt điều kiện kết thúc Đêm.
+  if (s.bench) return events;
   if (p.flames <= 0) end(s, 'lost', 'no_flames', ev);
   else if (timeLeft(s) <= EPS) {
     if (litCount(s) >= winThreshold(T, s.lanterns.length)) end(s, 'won', 'dawn_survived', ev);
@@ -653,6 +655,7 @@ function end(s, result, reason, ev) {
  */
 function applyFuelStep(s, ev, tick) {
   const T = s.T;
+  if (s.bench) return;   // cảnh benchmark (Phase 4): đèn giữ fuel 100, không hao, không hút
   // Dầu lưu theo đơn vị 1/60. 1 đơn vị/giây = 1 đơn vị 1/60 mỗi tick → chia cho TICK_RATE, không nhân fuelUnit.
   // (fuelUnit = 60 chỉ để đổi dầu thập phân ↔ đơn vị nguyên.)
   const decay = Math.round((T.fuel_decay_per_s * STD.fuelUnit) / TICK_RATE);   // 1.0 đơn vị mỗi tick
