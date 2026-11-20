@@ -14,4 +14,13 @@ description: Chạy toàn bộ kiểm chứng của Đảo Đèn Lồng (unit, s
 4. Cập nhật bảng truy vết `docs/proof/phase-N/README.md`: yêu cầu -> cách kiểm chứng -> bằng chứng -> kết quả.
 5. Scenario mới: thêm thư mục `tests/scenarios/NN-ten/` gồm `case.json` (night, seed, ticks, requirement, note, expect), `scenario.json`, `inputs.json`. Tính tay số tick kỳ vọng trước khi chạy. Kiểu kỳ vọng: `event`, `no_event`, `count`, `snapshot`+`equals`/`between`, `dist_xz`, `end` (xem `tests/lib/scenarios.js`). **Lưu ý v1.2:** `scenario.lanterns` thay thế danh sách đèn mặc định → phải khai báo đủ đèn của Đêm (đèn tắt khai báo `{ "id": "Lx" }`), nếu không `winThreshold` sẽ tính sai tổng đèn.
 6. Mutation nhanh: đổi một số trong `game.contract.json`, `npm test` phải đỏ; khôi phục bằng `git checkout -- game.contract.json` **chỉ khi thay đổi là tạm thời**. Nếu đó là thay đổi thật của phase, dùng `git stash` trước và `git stash pop` sau — không `git checkout` file đang sửa dở.
-7. Phase 3: kiểm 11 scenario mới `27…37` (refuel, lantern_out, relight, drain, low-fuel, dawn_survived, dawn-too-few, capacity, safe-zone-30, pulse-drain, refuel-evict). Lỗi cấu hình đã biết: `score.per_stun_bonus` đang 25 (ghi +30 thay vì +15); sửa 25→10 và test 36/AC-DR4 nếu trợ giảng xác nhận "tổng +15".
+7. Phase 3: kiểm 11 scenario mới `27…37` (refuel, lantern_out, relight, drain, low-fuel, dawn_survived, dawn-too-few, capacity, safe-zone-30, pulse-drain, refuel-evict). `score.per_stun_bonus` đã sửa về 10 (tổng +15) ở Phase 3; test 36/AC-DR4 kiểm đúng 15 — đừng đổi lại.
+
+## Phase 4 (Ticket-04) — thêm các bước
+
+8. `npm run soak` — phải thoát 0: `crashes = 0`, RSS ≤ 1.2 × start + dung sai trang V8 (và ≤ trần 128 MB), heap ≤ 1.2 × + 2 MB. Nếu không: chạy lại 5 lần để phân biệt dao động allocator với rò rỉ thật, rồi chạy `--nights 500` xem heap có xu hướng tăng không.
+9. `npm run bench` — cần Chrome; phải thoát 0 với `avg_fps ≥ 60`, `p1_low_fps ≥ 30`, `load_ms ≤ 10000`; `bench.json` có `shades: 200`, `motes: 100`, `window: [1280,720]`, `vsync_off: true`. Nếu treo "Hết thời gian chờ": cửa sổ Chrome bị hạ ưu tiên — đừng che cửa sổ, đừng mở tab khác.
+10. `npm run shots` — ghi `docs/proof/phase-4/img/` + `ui-report.json`. Đọc JSON, không chỉ xem ảnh: `conflict` phải là câu báo trùng phím, `largeFontCss` = `22.5px`, `nameErr` có câu lỗi tên, `board` có đúng mục vừa lưu.
+11. `npm start -- --export-leaderboard out.json` — `{"entries": [...]}` đúng thứ tự (score giảm dần, bằng điểm ai trước đứng trên).
+12. `npm run release` — tạo `dist/dao-den-long-web.zip`; giải nén và mở bằng Chrome thật xem có cảnh 3D (đừng chỉ kiểm HTTP 200).
+13. Cập nhật bảng truy vết `docs/proof/phase-4/README.md` và mục AC trong `docs/notes/phase-4.md` nếu thêm test.

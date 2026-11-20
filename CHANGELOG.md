@@ -2,6 +2,68 @@
 
 Mọi thay đổi đáng chú ý của dự án. Định dạng dựa trên [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+Lịch sử phát hành: **v1.0.0** gộp 4 phase của lab (Phase 1 → Phase 4).
+
+## [v1.0.0] — Phase 4 — 2026-11-20 — Ticket-04 "Bình minh: phát hành v1.0.0" (Contract v1.3)
+
+### Không phá vỡ tương thích
+
+- **Luật chơi và tuning không đổi**: mọi con số của v1.2 giữ nguyên; output headless của Phase 1–3 giữ nguyên. Phase 4 chỉ thêm công cụ, hạ tầng và lớp giao diện.
+- `contract_version`: `"1.2"` → **`"1.3"`** (Ticket-04 mục 6).
+- Bản `package.json`: `0.2.0` → **`1.0.0`**.
+
+### Thêm mới — Benchmark (mục 1)
+
+- `node scripts/bench.js --seed 42 --duration 30 --out bench.json` (`scripts/bench.js`): mở Chromium thật qua DevTools ở **1280×720**, không toàn màn hình, tắt vsync (`--disable-gpu-vsync --disable-frame-rate-limit`), tải cửa sổ bằng `Emulation.setDeviceMetricsOverride`.
+- `web/bench.html` + `web/bench.js`: cảnh chuẩn Đêm 1 đầy đủ ánh sáng với **200 Bóng Mực wander**, **100 đom đóm**, **L1–L3 sáng fuel 100**; tắt sinh thêm/sát thương/nhặt đom đóm/hao dầu/kết thúc Đêm; Mây đứng yên ở (0,0,0); camera bán kính 30 m, cao 15 m, nhìn (0,0,0), góc 0° tại (30,15,0), ngược chiều kim đồng hồ, 15 s/vòng; bỏ 3 s khởi động; báo `load_ms` từ đầu tiến trình tới khung hình đầu tiên.
+- `src/core/bench.js` (`benchScenario`, `createBenchGame`, `benchStep`, `orbitCamera`) và `src/core/benchstats.js` (đúng công thức `avg_fps`, `p1_low_fps` với k = max(1, ceil(0.01N)), `frame_ms_p95`).
+- `node src/bench.js` (`node scripts/bench.js --seed 42 --duration 30 --out bench.json:cpu`): chế độ dự phòng CPU khi không có trình duyệt, ghi `mode: "headless-cpu"` + `note`.
+- `bench.json` của repo: **283.7 FPS trung bình · p1 129.2 · p95 5.9 ms · 8511 khung · load 1198.5 ms** (ngưỡng 60 / 30 / 10.000).
+
+### Thêm mới — Soak (mục 2)
+
+- `node --jitless --max-semi-space-size=1 src/soak.js --seed 7 --nights 10 --out soak.json` (`src/soak.js`) + `src/core/soak.js`: 10 Đêm liên tiếp trong một tiến trình, Đêm 1→2→3 xoay vòng, Đêm i dùng seed 7+i, tối đa thời lượng chuẩn mỗi Đêm; input ngẫu nhiên tất định theo seed (hướng đổi mỗi 30 tick, 5% nhảy, 3% lướt, 2% tỏa sáng, 10% tương tác).
+- Đếm `crashes` (lỗi văng khỏi Đêm hoặc RSS vượt 4× quá 4 s), 3 Đêm khởi động trước khi đo `mem_start_mb`, đo thêm heap.
+- `soak.json`: **0 crash, RSS 38 → 39 MB (×1.026)**; thêm mẫu 500 Đêm (`docs/proof/phase-4/soak-500.json`).
+
+### Thêm mới — Bảng xếp hạng (mục 3)
+
+- Nhập tên sau màn Bình Minh hoặc sau khi thua; tên 3–12 ký tự `[A-Za-z0-9_]`, chấp nhận **chữ Việt có dấu**.
+- Mục: `name, score, nights_won (0–3), achieved_at (ISO 8601 có múi giờ), seed`; giữ top 10, score giảm dần, bằng điểm ai đạt trước đứng trên; lưu localStorage (còn sau khi mở lại).
+- Màn hình **Bảng xếp hạng** từ menu chính + trang `/web/leaderboard.html`.
+- `node scripts/serve.js --export-leaderboard out.json` → `{"entries": [...]}`; đọc được bảng của Chrome qua `--profile` / `npm run bench -- --keep-profile`.
+- `src/core/leaderboard.js` (thuần, test được): chuẩn hóa tên, sắp xếp, ISO 8601 có múi giờ, tệp hỏng không làm hỏng game.
+
+### Thêm mới — Dễ tiếp cận (mục 4)
+
+- **Gán phím** cho cả 9 hành động, báo trùng phím ngay khi gán, nút **Khôi phục mặc định**, lưu giữa các lần mở (`web/settings.js`).
+- **Phụ đề/chỉ báo hình ảnh**: bảng phụ đề (Bóng Mực sắp hiện/đuổi/hút dầu, gió sắp nổi, 10 giây cuối, danh sách đèn dầu < 30), **mũi tên ở mép màn hình** chỉ Bóng Mực ngoài khung, biểu tượng **⚠** nổi trên đèn yếu.
+- **Giảm chuyển động**: tắt rung camera và hiệu ứng chớp/nhấp nháy.
+- **Cỡ chữ**: UI cơ sở **18 px** ở 1280×720; tùy chọn **chữ lớn ×1.25** (22.5 px).
+
+### Thêm mới — Đóng gói & tài liệu (mục 5, 7)
+
+- `npm run release` (`scripts/release.js`): `dist/dao-den-long-web.zip` (bản web tĩnh + `serve.mjs` + README + LICENSE); có `Dockerfile`.
+- README viết lại cho v1.0.0 (cài đặt 3 lệnh, điều khiển, test/headless/bench/soak, bảng xếp hạng, kết quả tự đo); thêm `docs/lab/ticket-04.md`, `docs/notes/phase-4.md`, `docs/notes/retro.md`, `docs/proof/phase-4/`.
+- `npm run shots` (`scripts/shots.js`): kiểm UI tự động bằng Chrome + DevTools, sinh ảnh và `ui-report.json`.
+
+### Sửa lỗi
+
+- Trang vào thẳng Đêm (`?demo`, `?bench`) văng lỗi `Cannot access 'qs' before initialization` → không hiện cảnh 3D.
+- Nút trong menu không phản hồi khi `AudioContext` bị chặn (âm thanh không được chặn chức năng).
+- Cảnh bench vẫn mất Ngọn Lửa do `invuln` bị đặt 0 trước bước kiểm tra chạm.
+- Soak: `mem_start` đo trước khi V8 cấp trang heap làm ngưỡng 1.2× không ổn định; thiếu trường heap.
+- Bảng xếp hạng: mục chờ (`__pending__`) bị lọc mất khi đọc tệp; `DDL_LEADERBOARD` trộn tệp mặc định.
+- Bộ đo bench bị treo khi cửa sổ Chrome bị hạ ưu tiên (thêm cờ + hẹn giờ cứng + timeout cho CDP).
+
+### Sửa sau review (gọi lệnh đúng như máy chấm, đối chiếu từng mục Ticket-04)
+
+- `bench_cmd` trỏ vào bench render thật `node scripts/bench.js` (bản đầu trỏ vào bench chỉ chạy CPU); nhận `--duration`; luôn thoát 0 sau khi đo; `load_ms` tính từ lúc tiến trình bắt đầu; `peak_mem_mb` = null (bản web) kèm giải thích; camera quay theo quy ước góc của lab (+Z ở 90°).
+- `soak_cmd` = `node --jitless --max-semi-space-size=1 src/soak.js`: bỏ 3 Đêm khởi động ẩn và ngưỡng nới `+16 MB`; đo đúng `mem_end ≤ 1.2 × mem_start` (38 → 39 MB).
+- `run_cmd` = `node scripts/serve.js` (`npm start --export-leaderboard` bị npm nuốt cờ).
+- Bảng xếp hạng lưu trên đĩa `.ddl/leaderboard.json` qua máy chủ; export đọc đúng tệp đó; một mục cho mỗi ván.
+- Mọi chữ UI ≥ 18 px.
+
 ## [Phase 3] — 2026-11-20 — Ticket-03 "Đèn cạn dầu" (Contract v1.2)
 
 ### ⚠ BREAKING CHANGES (thay đổi phá vỡ tương thích)
@@ -79,11 +141,11 @@ Mọi thay đổi đáng chú ý của dự án. Định dạng dựa trên [Kee
 - **`per_stun_bonus`** đang cấu hình 25 (tổng trúng drain = 30) trong khi Ticket-03 ghi "tổng +15 nếu drain" — **cần sửa thành 10**. Xem ADR-0001 mục 10 khiếm khuyết (a).
 - Bot của Phase 2 thua Đêm 2/3 dưới luật mới (Đêm 2: 0/3; Đêm 3: 0/3; Đêm 1: 3/3 thắng). Ghi trung thực trong [docs/proof/phase-3/results.md](docs/proof/phase-3/results.md). Đây là giới hạn của bot, không phải lỗi luật.
 
-## [Phase 2] — 2026-11-19 — Ticket-02 "Ba hòn đảo" (Contract v1.1)
+## [Phase 2] — 2026-11-20 — Ticket-02 "Ba hòn đảo" (Contract v1.1)
 
 Thêm 3 Đêm, 3 bản đồ, cầu/bục nhảy/dốc/vách, lướt, Gió Lạc, Bùa Gió, tạm dừng. Chi tiết: [docs/notes/phase-2.md](docs/notes/phase-2.md).
 
-## [Phase 1] — 2026-11-18 — Bản chơi thử
+## [Phase 1] — 2026-11-20 — Bản chơi thử
 
 Nền tảng: `sim.js`, `headless.js`, web 3D, HEADLESS CLI.
 
