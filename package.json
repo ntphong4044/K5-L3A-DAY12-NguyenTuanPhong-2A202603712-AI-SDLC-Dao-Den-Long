@@ -8,9 +8,9 @@
   "scripts": {
     "start": "node scripts/serve.js",
     "headless": "node src/headless.js",
-    "bench": "node scripts/bench.js",
+    "bench": "node scripts/bench.js --seed 42 --duration 30 --out bench.json",
     "bench:cpu": "node src/bench.js",
-    "soak": "node src/soak.js",
+    "soak": "node --jitless --max-semi-space-size=1 src/soak.js --seed 7 --nights 10 --out soak.json",
     "leaderboard": "node scripts/serve.js --export-leaderboard",
     "release": "node scripts/release.js",
     "shots": "node scripts/shots.js",
