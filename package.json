@@ -1,6 +1,6 @@
 {
   "name": "dao-den-long",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "description": "Đảo Đèn Lồng — game 3D góc nhìn thứ ba (Day 12 AI SDLC Lab)",
@@ -9,7 +9,8 @@
     "start": "node scripts/serve.js",
     "headless": "node src/headless.js",
     "test": "node --test",
-    "proof": "node scripts/proof.js"
+    "proof": "node scripts/proof.js",
+    "fps": "node scripts/fps-bench.js"
   },
   "engines": {
     "node": ">=20"
