@@ -15,9 +15,10 @@ const close = (a, b, eps = 1e-6) => assert.ok(Math.abs(a - b) <= eps, `${a} != $
 const LIT = (fuel = 100, id = 'L1') => ({ id, lit: true, fuel });
 const ALL_LIT = ['L1', 'L2', 'L3', 'L4', 'L5'].map((id) => LIT(100, id)); // không còn đèn tắt/yếu để Bóng Mực nhắm
 
-test('[P3 đổi] Số chuẩn Ticket-02 + Ticket-03 khớp game.contract.json v1.2', () => {
+test('[P4 đổi] Số chuẩn Ticket-02 + Ticket-03 khớp game.contract.json v1.3 (không số nào đổi ở Ticket-04)', () => {
   const contract = JSON.parse(fs.readFileSync(new URL('../game.contract.json', import.meta.url)));
-  assert.equal(contract.contract_version, '1.2');
+  // Ticket-04 mục 6: contract_version "1.3"; tuning giữ nguyên số của v1.2.
+  assert.equal(contract.contract_version, '1.3');
   const want = { player_speed: 6, carry_capacity: 10, lantern_cost: 10, interact_radius: 2, pulse_cost: 3, pulse_radius: 5,
     pulse_cooldown_s: 3, pulse_stun_s: 2, pulse_push_m: 4, safe_radius: 6, shade_speed: 4, shade_hit_radius: 1, invuln_s: 1.5,
     hit_drop_ratio: 0.5, flames: 3, fall_enabled: true, dash_speed: 14, dash_duration_s: 0.2, dash_cooldown_s: 1.5,

@@ -114,10 +114,11 @@ test('thiếu tham số bắt buộc => mã thoát khác 0', () => {
   assert.notEqual(headless(['--seed', '1', '--night', '1', '--ticks', '5']).code, 0);
 });
 
-test('game.contract.json đủ trường bắt buộc (v1.2)', () => {
+test('game.contract.json đủ trường bắt buộc (v1.3: thêm bench_cmd, soak_cmd)', () => {
   const c = JSON.parse(fs.readFileSync(path.join(ROOT, 'game.contract.json'), 'utf8'));
-  assert.equal(c.contract_version, '1.2');
-  for (const k of ['team', 'build_cmd', 'run_cmd', 'headless_cmd']) assert.equal(typeof c[k], 'string');
+  // Ticket-04 mục 6: contract_version "1.3"; mọi yêu cầu v1.0–v1.2 giữ nguyên.
+  assert.equal(c.contract_version, '1.3');
+  for (const k of ['team', 'build_cmd', 'run_cmd', 'headless_cmd', 'bench_cmd', 'soak_cmd']) assert.equal(typeof c[k], 'string', k);
   const keys = ['player_speed', 'carry_capacity', 'lantern_cost', 'lantern_count_night1', 'pickup_radius', 'interact_radius',
     'pulse_cost', 'pulse_radius', 'night1_duration_s', 'flames', 'invuln_s', 'hit_drop_ratio', 'pulse_stun_s',
     'pulse_push_m', 'pulse_cooldown_s', 'safe_radius', 'shade_speed', 'shade_hit_radius', 'fall_enabled',
