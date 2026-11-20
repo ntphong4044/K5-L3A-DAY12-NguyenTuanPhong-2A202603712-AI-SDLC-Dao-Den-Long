@@ -122,11 +122,13 @@ test('AC-S2 tối đa 1 lần mất lửa mỗi tick; xét theo id tăng dần (
   assert.equal(g.shades.find((s) => s.id === 'S10').state, 'chase');
 });
 
-test('AC-S3 phát hiện 12 m, bỏ đuổi > 18 m', () => {
+test('AC-S3 phát hiện 12 m, bỏ đuổi > 18 m; wander lượn vòng 2 m quanh chỗ đứng', () => {
   const g = game({ shades: [{ pos: [12.5, 1, 0] }] });
-  run(g, 1);
+  run(g, 60);
   assert.equal(g.shades[0].state, 'wander');
-  run(g, 40);
+  assert.ok(Math.hypot(g.shades[0].pos[0] - 10.5, g.shades[0].pos[2]) <= 2 + 1e-6);
+  g.player.pos = [1, 0, 0];
+  run(g, 1);
   assert.equal(g.shades[0].state, 'chase');
   g.player.pos = [-20, 0, 0];
   run(g, 1);

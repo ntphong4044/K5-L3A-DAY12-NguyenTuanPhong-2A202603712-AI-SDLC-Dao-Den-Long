@@ -18,7 +18,8 @@ export const STD = {
   shadeFirstSpawn: 300, shadeFirstCount: 2, shadeDetect: 12, shadeLose: 18, shadeMinSpawnDist: 15,
   shadeSpawningTicks: 60,     // GIẢ ĐỊNH: thời gian trạng thái "spawning"
   shadeY: 1,                  // tâm Bóng Mực cao 1 m trên mặt đất
-  shadeWanderSpeed: 1,        // GIẢ ĐỊNH: "wander" trôi chậm 1 m/s về phía Mây
+  shadeWanderSpeed: 1,        // GIẢ ĐỊNH: "wander" lượn vòng 1 m/s, bán kính 2 m quanh chỗ bắt đầu lượn
+  shadeWanderRadius: 2,
   recoilTicks: 60, recoilDist: 2,
   evictTicks: 30, safeMargin: 0.001,
   invulnTicks: 90, respawnWait: 60, fallY: -10,
@@ -168,7 +169,7 @@ function addMote(s, pos, kind, ttl, bornTick, spawnIdx = -1) {
   return m;
 }
 function makeShade(s, id, pos) {
-  return { id, pos: [...pos], state: 'spawning', stateTicks: STD.shadeSpawningTicks, push: 0, pushDir: [1, 0], evict: 0, evictStep: [0, 0], recoilDir: [1, 0] };
+  return { id, pos: [...pos], state: 'spawning', stateTicks: STD.shadeSpawningTicks, push: 0, pushDir: [1, 0], evict: 0, evictStep: [0, 0], recoilDir: [1, 0], anchor: null, ang: 0 };
 }
 function makeDrifter(id, pos) {
   return { id, pos: [...pos], state: 'idle', stolen: 0, flee: 0, anchor: [pos[0] - STD.drifterIdleRadius, pos[2]], ang: 0 };
@@ -329,6 +330,7 @@ export function step(s, input) {
         const d = Math.hypot(dx, dz);
         if (d < 1e-9) { dx = 1; dz = 0; } else { dx /= d; dz /= d; }
         sh.state = 'stunned';
+        sh.anchor = null;
         sh.stateTicks = sec(T.pulse_stun_s);
         sh.push = STD.pushTicks;
         sh.pushDir = [dx, dz];
@@ -374,11 +376,19 @@ export function step(s, input) {
     } else if (sh.state === 'wander' || sh.state === 'chase') {
       if (sh.state === 'wander' && alive && dist <= STD.shadeDetect + EPS) sh.state = 'chase';
       else if (sh.state === 'chase' && (!alive || dist > STD.shadeLose + EPS)) sh.state = 'wander';
-      const v = sh.state === 'chase' ? speed : (alive ? STD.shadeWanderSpeed : 0);
-      if (v > 0 && dist > 1e-9) {
-        const k = Math.min(v * DT, dist) / dist;
-        sh.pos[0] += (p.pos[0] - sh.pos[0]) * k;
-        sh.pos[2] += (p.pos[2] - sh.pos[2]) * k;
+      if (sh.state === 'chase') {
+        sh.anchor = null;
+        if (dist > 1e-9) {
+          const k = Math.min(speed * DT, dist) / dist;
+          sh.pos[0] += (p.pos[0] - sh.pos[0]) * k;
+          sh.pos[2] += (p.pos[2] - sh.pos[2]) * k;
+        }
+      } else {
+        const R = STD.shadeWanderRadius;
+        if (!sh.anchor) { sh.anchor = [sh.pos[0] - R, sh.pos[2]]; sh.ang = 0; }
+        sh.ang += (STD.shadeWanderSpeed / R) * DT;
+        sh.pos[0] = sh.anchor[0] + R * Math.cos(sh.ang);
+        sh.pos[2] = sh.anchor[1] + R * Math.sin(sh.ang);
       }
       keepOutOfSafe(s, sh);
     }
@@ -443,7 +453,7 @@ export function step(s, input) {
           let rx = sh.pos[0] - p.pos[0], rz = sh.pos[2] - p.pos[2];
           const rl = Math.hypot(rx, rz);
           if (rl < 1e-9) { rx = 1; rz = 0; } else { rx /= rl; rz /= rl; }
-          sh.state = 'recoil'; sh.stateTicks = STD.recoilTicks; sh.recoilDir = [rx, rz];
+          sh.state = 'recoil'; sh.stateTicks = STD.recoilTicks; sh.recoilDir = [rx, rz]; sh.anchor = null;
           s.fx.push('hit');
           ev('player_hit', { by: 'shade', flames: p.flames, dropped });
           break;

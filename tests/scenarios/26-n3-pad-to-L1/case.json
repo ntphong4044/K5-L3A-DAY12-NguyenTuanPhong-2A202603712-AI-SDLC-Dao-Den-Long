@@ -1,0 +1,31 @@
+{
+ "requirement": "Đêm 3: lên tầng 2 bằng bục nhảy rồi thắp L1 (0,6,6)",
+ "night": 3,
+ "seed": 1,
+ "ticks": 120,
+ "snapshot_every": 10,
+ "note": "đáp tầng 2 ở z~6.47, cách L1 ~0.47 m",
+ "expect": [
+  {
+   "event": "deposit",
+   "tick": 101,
+   "data": {
+    "lantern_id": "L1",
+    "amount": 10,
+    "deposited": 10
+   }
+  },
+  {
+   "event": "lantern_lit",
+   "tick": 101,
+   "data": {
+    "lantern_id": "L1"
+   }
+  },
+  {
+   "snapshot": 110,
+   "path": "lanterns.0.lit",
+   "equals": true
+  }
+ ]
+}
