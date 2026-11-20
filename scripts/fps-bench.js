@@ -1,6 +1,6 @@
 // Đo FPS bản web ở 1280x720 bằng Chrome thật (GPU) qua DevTools Protocol, bot tự chơi (?bench=N).
 // Dùng: npm start (cửa sổ khác) rồi: node scripts/fps-bench.js [đường-dẫn-chrome] [giây=25]
-// Ghi kết quả vào docs/proof/phase-2/fps.md. Cần Node >= 22 (WebSocket có sẵn).
+// Ghi kết quả vào docs/proof/phase-<N>/fps.md (tham số thứ 3, mặc định 3). Cần Node >= 22 (WebSocket có sẵn).
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -10,6 +10,7 @@ const chrome = process.argv[2] || process.env.CHROME || (process.platform === 'w
   ? 'C:/Program Files/Google/Chrome/Application/chrome.exe'
   : process.platform === 'darwin' ? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' : 'google-chrome');
 const seconds = Number(process.argv[3] || 25);
+const phase = process.argv[4] || process.env.PHASE || '3';
 const port = 9333;
 const profile = fs.mkdtempSync(path.join(os.tmpdir(), 'ddl-bench-'));
 const proc = spawn(chrome, [`--remote-debugging-port=${port}`, `--user-data-dir=${profile}`, '--headless=new',
@@ -46,5 +47,5 @@ const md = ['# Đo FPS bản web (tự sinh bởi `node scripts/fps-bench.js`)',
   `- Máy: ${os.cpus()[0]?.model?.trim()} · ${os.platform()} ${os.release()} · Chrome headless, cửa sổ 1280×720, bot tự chơi (\`?bench=N&seed=7\`)`,
   `- Ngưỡng Ticket-02: trung bình >= 30 FPS`, '', '| Đêm | FPS trung bình | Số giây đo | Kích thước | GPU (WebGL renderer) | Đạt |', '|---|---|---|---|---|---|',
   ...rows.map((r) => `| ${r.night} | ${r.fps.avg.toFixed(1)} | ${r.fps.n} | ${r.size.join('×')} | ${r.gl} | ${r.fps.avg >= 30 ? '✅' : '❌'} |`), ''];
-fs.mkdirSync('docs/proof/phase-2', { recursive: true });
-fs.writeFileSync('docs/proof/phase-2/fps.md', md.join('\n'));
+fs.mkdirSync(`docs/proof/phase-${phase}`, { recursive: true });
+fs.writeFileSync(`docs/proof/phase-${phase}/fps.md`, md.join(String.fromCharCode(10)));

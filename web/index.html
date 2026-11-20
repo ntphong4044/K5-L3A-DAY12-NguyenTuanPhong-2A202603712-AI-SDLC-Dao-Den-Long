@@ -17,6 +17,11 @@
   #topright b { color: var(--gold); font-size: 20px; }
   #nightname { top: 48px; left: 50%; transform: translateX(-50%); font-size: 13px; opacity: 0.8; }
   #bar { bottom: 18px; left: 50%; transform: translateX(-50%); display: flex; gap: 5px; }
+  #carry { bottom: 46px; left: 50%; transform: translateX(-50%); font-size: 13px; opacity: 0.85; }
+  /* Ticket-03 mục 6: bảng màu dễ phân biệt — đổi #FF5A5F sang trắng và thêm ⚠ */
+  body.cb #timer.low { color: #FFF; }
+  body.cb #timer.low::after { content: " ⚠"; }
+  body.cb #windwarn { color: #FFF; }
   #bar i { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #FFE58A66; background: #0008; }
   #bar i.on { background: radial-gradient(circle, #FFF6C2 30%, #FFE58A 70%); border-color: #FFE58A; box-shadow: 0 0 10px #FFE58A; }
   #cds { bottom: 14px; right: 16px; display: flex; gap: 12px; }
@@ -54,6 +59,7 @@
   <div id="windwarn" class="hud hidden">🍃 Gió sắp nổi…</div>
   <div id="prompt" class="hud hidden"></div>
   <div id="charm" class="hud hidden"></div>
+  <div id="carry" class="hud"></div>
   <div id="bar" class="hud"></div>
   <div id="cds" class="hud"><div id="cd-dash" class="cd">LƯỚT</div><div id="cd-pulse" class="cd">SÁNG</div></div>
   <div id="arrow" class="hud hidden"></div>
