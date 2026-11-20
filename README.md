@@ -1,5 +1,6 @@
 # Đảo Đèn Lồng · v1.0.0
 
+> **Video demo:** [demo.mp4 (Release v1.0.0)](https://github.com/ntphong4044/K5-L3A-DAY12-NguyenTuanPhong-2A202603712-AI-SDLC-Dao-Den-Long/releases/download/v1.0.0/demo.mp4) · **Bản phát hành:** [Release v1.0.0](https://github.com/ntphong4044/K5-L3A-DAY12-NguyenTuanPhong-2A202603712-AI-SDLC-Dao-Den-Long/releases/tag/v1.0.0)
 > Day 12 · AI SDLC Lab · Nguyễn Tuấn Phong · 2A202603712
 > Ticket hiện tại: [Ticket-04 — "Bình minh: phát hành v1.0.0"](docs/lab/ticket-04.md) · Contract **v1.3** · Tài liệu lab: [docs/lab/](docs/lab/README.md)
 
