@@ -1,0 +1,20 @@
+{
+  "name": "dao-den-long",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Đảo Đèn Lồng — game 3D góc nhìn thứ ba (Day 12 AI SDLC Lab)",
+  "license": "MIT",
+  "scripts": {
+    "start": "node scripts/serve.js",
+    "headless": "node src/headless.js",
+    "test": "node --test",
+    "proof": "node scripts/proof.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "three": "0.170.0"
+  }
+}
