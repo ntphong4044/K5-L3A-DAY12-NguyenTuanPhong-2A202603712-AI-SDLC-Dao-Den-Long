@@ -1,6 +1,6 @@
 // Kiểm tra định dạng file inputs / scenario theo Test Contract v1.0 (mục C, D).
 // Sai định dạng -> ném FormatError (headless thoát mã 2).
-import { LANTERN_IDS } from './sim.js';
+import { SHADE_STATES, DRIFTER_STATES } from './sim.js';
 
 export class FormatError extends Error {}
 
@@ -27,7 +27,7 @@ export function validateInputs(doc) {
       }
     }
     if ('cam_yaw_deg' in f && !isNum(f.cam_yaw_deg)) fail(`${at}.cam_yaw_deg: phải là số`);
-    for (const k of ['jump', 'interact', 'pulse', 'dash']) {
+    for (const k of ['jump', 'interact', 'pulse', 'dash', 'pause']) {
       if (k in f && typeof f[k] !== 'boolean') fail(`${at}.${k}: phải là boolean`);
     }
   });
@@ -42,12 +42,16 @@ export function validateScenario(doc, lanternCount = 5) {
     if ('pos' in p && !isVec3(p.pos)) fail('scenario.player.pos: phải là [x, y, z]');
     if ('carried' in p && (!isInt(p.carried) || p.carried < 0)) fail('scenario.player.carried: số nguyên >= 0');
     if ('flames' in p && (!isInt(p.flames) || p.flames < 0)) fail('scenario.player.flames: số nguyên >= 0');
+    for (const k of ['invuln_ticks', 'dash_cd_ticks', 'pulse_cd_ticks', 'charm_ticks']) {
+      if (k in p && (!isInt(p[k]) || p[k] < 0)) fail(`scenario.player.${k}: số nguyên >= 0`);
+    }
   }
-  for (const k of ['random_motes', 'random_shades']) {
+  for (const k of ['random_motes', 'random_shades', 'random_drifters', 'wind_enabled']) {
     if (k in doc && typeof doc[k] !== 'boolean') fail(`scenario.${k}: phải là boolean`);
   }
   if ('motes' in doc) {
-    if (!Array.isArray(doc.motes) || !doc.motes.every(isVec3)) fail('scenario.motes: phải là mảng [x, y, z]');
+    const okMote = (m) => isVec3(m) || (isObj(m) && isVec3(m.pos) && (!('kind' in m) || ['random', 'dropped'].includes(m.kind)));
+    if (!Array.isArray(doc.motes) || !doc.motes.every(okMote)) fail('scenario.motes: phải là mảng [x, y, z] hoặc {pos, kind}');
   }
   if ('shades' in doc) {
     if (!Array.isArray(doc.shades)) fail('scenario.shades: phải là mảng');
@@ -59,11 +63,29 @@ export function validateScenario(doc, lanternCount = 5) {
         if (ids.has(sh.id)) fail(`scenario.shades[${i}].id: trùng id "${sh.id}"`);
         ids.add(sh.id);
       }
+      if ('state' in sh && !SHADE_STATES.includes(sh.state)) fail(`scenario.shades[${i}].state: một trong ${SHADE_STATES.join(', ')}`);
+      if ('state_ticks_left' in sh && (!isInt(sh.state_ticks_left) || sh.state_ticks_left < 0)) fail(`scenario.shades[${i}].state_ticks_left: số nguyên >= 0`);
+    });
+  }
+  if ('drifters' in doc) {
+    if (!Array.isArray(doc.drifters)) fail('scenario.drifters: phải là mảng');
+    doc.drifters.forEach((d, i) => {
+      if (!isObj(d) || !isVec3(d.pos)) fail(`scenario.drifters[${i}].pos: phải là [x, y, z]`);
+      if ('state' in d && !DRIFTER_STATES.includes(d.state)) fail(`scenario.drifters[${i}].state: một trong ${DRIFTER_STATES.join(', ')}`);
+      if ('stolen' in d && (!isInt(d.stolen) || d.stolen < 0)) fail(`scenario.drifters[${i}].stolen: số nguyên >= 0`);
+      if ('id' in d && (typeof d.id !== 'string' || !d.id)) fail(`scenario.drifters[${i}].id: chuỗi khác rỗng`);
+    });
+  }
+  if ('charms' in doc) {
+    if (!Array.isArray(doc.charms)) fail('scenario.charms: phải là mảng');
+    doc.charms.forEach((c, i) => {
+      if (!isObj(c) || !isVec3(c.pos)) fail(`scenario.charms[${i}].pos: phải là [x, y, z]`);
+      if ('available' in c && typeof c.available !== 'boolean') fail(`scenario.charms[${i}].available: boolean`);
     });
   }
   if ('lanterns' in doc) {
     if (!Array.isArray(doc.lanterns)) fail('scenario.lanterns: phải là mảng');
-    const valid = LANTERN_IDS.slice(0, lanternCount);
+    const valid = Array.from({ length: lanternCount }, (_, i) => `L${i + 1}`);
     doc.lanterns.forEach((l, i) => {
       if (!isObj(l) || !valid.includes(l.id)) fail(`scenario.lanterns[${i}].id: phải là một trong ${valid.join(', ')}`);
       if ('pos' in l && !isVec3(l.pos)) fail(`scenario.lanterns[${i}].pos: phải là [x, y, z]`);
